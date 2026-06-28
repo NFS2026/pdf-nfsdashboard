@@ -201,7 +201,7 @@
   <div class="logo">NFS</div>
   <div>
     <div class="hdr-title">PDF Signing Portal</div>
-    <div class="hdr-sub"> NFS </div>
+    <div class="hdr-sub">NFS Project</div>
   </div>
   <nav>
     <button class="active" onclick="showView('upload',this)">📤 Send</button>
@@ -273,32 +273,13 @@
   <!-- ── SETUP ── -->
   <div class="view" id="view-config">
     <div class="card">
-      <div class="card-head">📧 EmailJS Setup</div>
+      <div class="card-head">📧 Email Configuration</div>
       <div class="card-body">
         <div class="cfg-note">
-          <strong>One-time setup — takes ~15 minutes.</strong><br>
-          1. Go to <strong>emailjs.com</strong> → free account → connect Gmail<br>
-          2. Create a template with these variables:
-          <div class="code">To: {{to_email}}
-Subject: [NFS] Sign required — {{doc_name}}
-
-Dear {{signer_name}},
-
-Please sign the document: {{doc_name}}
-Your position: Signer {{position}} of {{total}}
-
-Sign here → {{signing_link}}
-
-Deadline: {{deadline}}</div>
-          3. Paste your Service ID, Template ID and Public Key below.
+          <strong>Email is pre-configured.</strong><br>
+          Signing notifications are sent automatically via <strong>noreply@nfsdashboard.com</strong> through the NFS email worker. No additional setup required.
         </div>
-        <label>Service ID</label>
-        <input type="text" id="cfgSvc" placeholder="service_xxxxxxx" oninput="saveCfg()">
-        <label>Template ID</label>
-        <input type="text" id="cfgTpl" placeholder="template_xxxxxxx" oninput="saveCfg()">
-        <label>Public Key</label>
-        <input type="text" id="cfgKey" placeholder="xxxxxxxxxxxxxx" oninput="saveCfg()">
-        <label>Portal URL (your subdomain)</label>
+        <label>Portal URL</label>
         <input type="text" id="cfgUrl" placeholder="https://pdf.nfsdashboard.com" oninput="saveCfg()">
         <label>Your Name (sender)</label>
         <input type="text" id="cfgSender" placeholder="Wissam Harake" oninput="saveCfg()">
@@ -519,35 +500,26 @@ async function sendEmail(doc, idx) {
   const base = cfg.url || location.origin + location.pathname;
   const link = `${base}?sign=${s.token}&doc=${doc.id}`;
 
-  if (!cfg.svc || !cfg.tpl || !cfg.key) {
-    console.warn('EmailJS not configured — link would be:', link);
-    toast('⚠️ EmailJS not configured — set up in Setup tab','err');
-    return;
-  }
-
-  if (!window.emailjs) {
-    await new Promise((res,rej) => {
-      const sc = document.createElement('script');
-      sc.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-      sc.onload = res; sc.onerror = rej;
-      document.head.appendChild(sc);
-    });
-    emailjs.init(cfg.key);
-  }
-
   try {
-    await emailjs.send(cfg.svc, cfg.tpl, {
-      to_email: s.email,
-      signer_name: s.name,
-      doc_name: doc.name,
-      signing_link: link,
-      position: idx + 1,
-      total: doc.signers.length,
-      sender: cfg.sender || 'NFS Portal',
-      deadline: '7 days from today'
+    const res = await fetch('https://email.nfsdashboard.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to_email: s.email,
+        signer_name: s.name,
+        doc_name: doc.name,
+        signing_link: link,
+        position: idx + 1,
+        total: doc.signers.length,
+        sender: cfg.sender || 'NFS Portal',
+        deadline: '7 days'
+      })
     });
+    const data = await res.json();
+    if (data.success) toast('📧 Email sent to ' + s.name, 'ok');
+    else toast('Email error: ' + JSON.stringify(data.error), 'err');
   } catch(e) {
-    toast('Email error: ' + (e.text || e),'err');
+    toast('Error sending email: ' + e.message, 'err');
   }
 }
 
@@ -734,9 +706,6 @@ async function applySign() {
 // ── CONFIG ──
 function saveCfg() {
   cfg = {
-    svc:    document.getElementById('cfgSvc').value,
-    tpl:    document.getElementById('cfgTpl').value,
-    key:    document.getElementById('cfgKey').value,
     url:    document.getElementById('cfgUrl').value,
     sender: document.getElementById('cfgSender').value,
   };
@@ -744,9 +713,6 @@ function saveCfg() {
 }
 
 function loadCfgUI() {
-  if(cfg.svc)    document.getElementById('cfgSvc').value    = cfg.svc;
-  if(cfg.tpl)    document.getElementById('cfgTpl').value    = cfg.tpl;
-  if(cfg.key)    document.getElementById('cfgKey').value    = cfg.key;
   if(cfg.url)    document.getElementById('cfgUrl').value    = cfg.url;
   if(cfg.sender) document.getElementById('cfgSender').value = cfg.sender;
 }
