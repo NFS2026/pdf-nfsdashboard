@@ -6,138 +6,81 @@
 <title>NFS — PDF Signing Portal</title>
 <style>
   :root {
-    --navy: #0B2545;
-    --blue: #08499D;
-    --red: #C0392B;
-    --light: #E8F0FB;
-    --border: #d0daea;
-    --gray: #f4f6fa;
-    --muted: #6b7f99;
-    --text: #1a2a3a;
-    --success: #1a7a4a;
-    --font: 'Segoe UI', system-ui, sans-serif;
+    --navy:#0B2545; --blue:#08499D; --red:#C0392B;
+    --light:#E8F0FB; --border:#d0daea; --gray:#f4f6fa;
+    --muted:#6b7f99; --text:#1a2a3a; --success:#1a7a4a;
+    --font:'Segoe UI',system-ui,sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font); background: var(--gray); color: var(--text); min-height: 100vh; }
-
-  header {
-    background: var(--navy); height: 56px; display: flex; align-items: center;
-    padding: 0 28px; gap: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-  }
-  .logo { background: var(--blue); color: #fff; font-weight: 800; font-size: 12px; letter-spacing: 1.5px; padding: 5px 10px; border-radius: 3px; }
-  .hdr-title { color: #fff; font-size: 14px; font-weight: 600; }
-  .hdr-sub { color: #7a9cc4; font-size: 11px; }
-  header nav { margin-left: auto; display: flex; gap: 4px; }
-  header nav button {
-    background: none; border: none; color: #7a9cc4; font-size: 12px; font-weight: 600;
-    padding: 6px 14px; border-radius: 5px; cursor: pointer; font-family: var(--font); transition: all .15s;
-  }
-  header nav button:hover { background: rgba(255,255,255,.1); color: #fff; }
-  header nav button.active { background: var(--blue); color: #fff; }
-
-  main { max-width: 760px; margin: 0 auto; padding: 32px 20px; }
-  .view { display: none; }
-  .view.active { display: block; }
-
-  .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 18px; overflow: hidden; }
-  .card-head { background: var(--navy); color: #fff; padding: 12px 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .card-body { padding: 22px; }
-
-  .signer-row {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--gray); border: 1px solid var(--border);
-    border-radius: 7px; padding: 10px 12px; margin-bottom: 8px;
-  }
-  .signer-num {
-    width: 26px; height: 26px; background: var(--blue); color: #fff;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; flex-shrink: 0;
-  }
-  .signer-row input {
-    flex: 1; border: 1.5px solid var(--border); border-radius: 5px;
-    padding: 7px 10px; font-size: 13px; font-family: var(--font);
-    color: var(--text); outline: none; transition: border-color .15s;
-  }
-  .signer-row input:focus { border-color: var(--blue); }
-  .signer-row input.email { flex: 1.4; }
-  .rm-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 15px; padding: 4px 6px; border-radius: 4px; }
-  .rm-btn:hover { background: #fdecea; }
-
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font); transition: all .15s; text-decoration: none; }
-  .btn-primary { background: var(--blue); color: #fff; }
-  .btn-primary:hover { background: #063d87; }
-  .btn-ghost { background: transparent; color: var(--blue); border: 1.5px solid var(--blue); }
-  .btn-ghost:hover { background: var(--light); }
-  .btn-sm { padding: 6px 12px; font-size: 12px; }
-  .btn:disabled { opacity: .6; cursor: not-allowed; }
-
-  .row-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
-
-  label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; display: block; margin-bottom: 5px; margin-top: 12px; }
-  input[type=text], input[type=email], input[type=url] {
-    border: 1.5px solid var(--border); border-radius: 5px; padding: 8px 11px;
-    font-size: 13px; font-family: var(--font); color: var(--text); width: 100%;
-    outline: none; transition: border-color .15s;
-  }
-  input[type=text]:focus, input[type=email]:focus, input[type=url]:focus { border-color: var(--blue); }
-
-  .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
-  .stat { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; border-left: 4px solid var(--blue); }
-  .stat.orange { border-left-color: #b85c00; }
-  .stat.green  { border-left-color: var(--success); }
-  .stat-n { font-size: 26px; font-weight: 800; color: var(--navy); }
-  .stat-l { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; margin-top: 2px; }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: var(--navy); color: #fff; padding: 9px 14px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; }
-  td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--gray); }
-
-  .badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .b-progress { background: #cce5ff; color: #004085; }
-  .b-complete { background: #d4edda; color: #155724; }
-
-  .prog-wrap { display: flex; align-items: center; gap: 6px; }
-  .prog-bg { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
-  .prog-fill { height: 100%; background: var(--blue); border-radius: 3px; }
-  .prog-txt { font-size: 11px; font-weight: 600; color: var(--blue); min-width: 28px; }
-
-  .empty { text-align: center; padding: 50px 20px; color: var(--muted); }
-  .empty .ei { font-size: 40px; margin-bottom: 12px; }
-  .empty h3 { font-size: 15px; color: var(--text); margin-bottom: 6px; }
-
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(11,37,69,.75); z-index: 500; align-items: center; justify-content: center; padding: 16px; }
-  .overlay.open { display: flex; }
-  .modal { background: #fff; border-radius: 10px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 16px 48px rgba(0,0,0,.3); }
-  .modal-head { background: var(--navy); color: #fff; padding: 16px 22px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px 10px 0 0; }
-  .modal-head h3 { font-size: 14px; font-weight: 700; }
-  .mclose { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; opacity: .7; }
-  .mclose:hover { opacity: 1; }
-  .modal-body { padding: 22px; }
-
-  .timeline { display: flex; flex-direction: column; }
-  .tl-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; position: relative; }
-  .tl-item:not(:last-child)::after { content:''; position:absolute; left:12px; top:32px; bottom:-9px; width:2px; background:var(--border); }
-  .tl-dot { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; border:2px solid var(--border); background:#fff; color:var(--muted); }
-  .tl-dot.signed { background:var(--success); border-color:var(--success); color:#fff; }
-  .tl-dot.active  { background:var(--blue); border-color:var(--blue); color:#fff; }
-  .tl-name { font-size:13px; font-weight:600; }
-  .tl-role { font-size:11px; color:var(--muted); }
-  .tl-date { font-size:11px; color:var(--success); margin-top:2px; }
-
-  .cfg-note { background:#fffbf0; border:1.5px solid #f0d080; border-radius:7px; padding:14px 16px; margin-bottom:14px; font-size:12px; color:#6b5a00; line-height:1.6; }
-
-  .toast { position:fixed; bottom:20px; right:20px; background:var(--navy); color:#fff; padding:12px 18px; border-radius:7px; font-size:13px; font-weight:500; z-index:2000; box-shadow:0 6px 20px rgba(0,0,0,.2); transform:translateY(80px); opacity:0; transition:all .3s; max-width:320px; }
-  .toast.show { transform:translateY(0); opacity:1; }
-  .toast.ok  { background:var(--success); }
-  .toast.err { background:var(--red); }
-
-  @media(max-width:600px) {
-    .stats { grid-template-columns:1fr 1fr; }
-    .signer-row { flex-wrap:wrap; }
-    .signer-row input.email { flex: 1 0 100%; }
-  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--gray);color:var(--text);min-height:100vh;}
+  header{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 28px;gap:14px;box-shadow:0 2px 10px rgba(0,0,0,.25);}
+  .logo{background:var(--blue);color:#fff;font-weight:800;font-size:12px;letter-spacing:1.5px;padding:5px 10px;border-radius:3px;}
+  .hdr-title{color:#fff;font-size:14px;font-weight:600;}
+  .hdr-sub{color:#7a9cc4;font-size:11px;}
+  header nav{margin-left:auto;display:flex;gap:4px;}
+  header nav button{background:none;border:none;color:#7a9cc4;font-size:12px;font-weight:600;padding:6px 14px;border-radius:5px;cursor:pointer;font-family:var(--font);transition:all .15s;}
+  header nav button:hover{background:rgba(255,255,255,.1);color:#fff;}
+  header nav button.active{background:var(--blue);color:#fff;}
+  main{max-width:760px;margin:0 auto;padding:32px 20px;}
+  .view{display:none;} .view.active{display:block;}
+  .card{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden;}
+  .card-head{background:var(--navy);color:#fff;padding:12px 20px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+  .card-body{padding:22px;}
+  .signer-row{display:flex;align-items:center;gap:8px;background:var(--gray);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:8px;}
+  .signer-num{width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .signer-row input{flex:1;border:1.5px solid var(--border);border-radius:5px;padding:7px 10px;font-size:13px;font-family:var(--font);color:var(--text);outline:none;transition:border-color .15s;}
+  .signer-row input:focus{border-color:var(--blue);}
+  .signer-row input.email{flex:1.4;}
+  .rm-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:15px;padding:4px 6px;border-radius:4px;}
+  .rm-btn:hover{background:#fdecea;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;text-decoration:none;}
+  .btn-primary{background:var(--blue);color:#fff;} .btn-primary:hover{background:#063d87;}
+  .btn-ghost{background:transparent;color:var(--blue);border:1.5px solid var(--blue);} .btn-ghost:hover{background:var(--light);}
+  .btn-sm{padding:6px 12px;font-size:12px;}
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+  .row-actions{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+  label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:5px;margin-top:12px;}
+  input[type=text],input[type=email],input[type=url]{border:1.5px solid var(--border);border-radius:5px;padding:8px 11px;font-size:13px;font-family:var(--font);color:var(--text);width:100%;outline:none;transition:border-color .15s;}
+  input[type=text]:focus,input[type=email]:focus,input[type=url]:focus{border-color:var(--blue);}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+  .stat{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px 18px;border-left:4px solid var(--blue);}
+  .stat.orange{border-left-color:#b85c00;} .stat.green{border-left-color:var(--success);}
+  .stat-n{font-size:26px;font-weight:800;color:var(--navy);}
+  .stat-l{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{background:var(--navy);color:#fff;padding:9px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
+  td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;} tr:hover td{background:var(--gray);}
+  .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .b-progress{background:#cce5ff;color:#004085;} .b-complete{background:#d4edda;color:#155724;}
+  .prog-wrap{display:flex;align-items:center;gap:6px;}
+  .prog-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .prog-fill{height:100%;background:var(--blue);border-radius:3px;}
+  .prog-txt{font-size:11px;font-weight:600;color:var(--blue);min-width:28px;}
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);}
+  .empty .ei{font-size:40px;margin-bottom:12px;}
+  .empty h3{font-size:15px;color:var(--text);margin-bottom:6px;}
+  .overlay{display:none;position:fixed;inset:0;background:rgba(11,37,69,.75);z-index:500;align-items:center;justify-content:center;padding:16px;}
+  .overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:10px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.3);}
+  .modal-head{background:var(--navy);color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;border-radius:10px 10px 0 0;}
+  .modal-head h3{font-size:14px;font-weight:700;}
+  .mclose{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;opacity:.7;}
+  .mclose:hover{opacity:1;}
+  .modal-body{padding:22px;}
+  .timeline{display:flex;flex-direction:column;}
+  .tl-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;position:relative;}
+  .tl-item:not(:last-child)::after{content:'';position:absolute;left:12px;top:32px;bottom:-9px;width:2px;background:var(--border);}
+  .tl-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:2px solid var(--border);background:#fff;color:var(--muted);}
+  .tl-dot.signed{background:var(--success);border-color:var(--success);color:#fff;}
+  .tl-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .tl-name{font-size:13px;font-weight:600;} .tl-role{font-size:11px;color:var(--muted);}
+  .tl-date{font-size:11px;color:var(--success);margin-top:2px;}
+  .cfg-note{background:#fffbf0;border:1.5px solid #f0d080;border-radius:7px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:#6b5a00;line-height:1.6;}
+  .toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:7px;font-size:13px;font-weight:500;z-index:2000;box-shadow:0 6px 20px rgba(0,0,0,.2);transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.ok{background:var(--success);} .toast.err{background:var(--red);}
+  @media(max-width:600px){.stats{grid-template-columns:1fr 1fr;}.signer-row{flex-wrap:wrap;}.signer-row input.email{flex:1 0 100%;}}
 </style>
 </head>
 <body>
@@ -157,16 +100,15 @@
 
 <main>
 
-  <!-- ── SEND ── -->
+  <!-- SEND -->
   <div class="view active" id="view-send">
-
     <div class="card">
       <div class="card-head">📄 Document</div>
       <div class="card-body">
-        <label>Document Name</label>
+        <label>Document Name *</label>
         <input type="text" id="docName" placeholder="e.g. ITP-E&I-001 Rev.2">
-        <label>Document Link <span style="font-weight:400;text-transform:none;font-size:11px;">(optional — SharePoint, Teams, Drive, or any shared URL)</span></label>
-        <input type="url" id="docLink" placeholder="https://... or leave blank">
+        <label>Document Link <span style="font-weight:400;text-transform:none;font-size:11px;">(optional — SharePoint, Teams, or any shared URL)</span></label>
+        <input type="url" id="docLink" placeholder="https://...">
       </div>
     </div>
 
@@ -182,15 +124,14 @@
           <button class="btn btn-ghost btn-sm" onclick="loadTeam()">📋 Load Team</button>
         </div>
         <div class="row-actions">
-          <span style="font-size:12px;color:var(--muted);">Each signer is notified by email when it's their turn</span>
+          <span style="font-size:12px;color:var(--muted);">Each signer confirms directly from their email — no portal login needed</span>
           <button class="btn btn-primary" id="sendBtn" onclick="sendDoc()">📤 Send for Signing</button>
         </div>
       </div>
     </div>
-
   </div>
 
-  <!-- ── DASHBOARD ── -->
+  <!-- DASHBOARD -->
   <div class="view" id="view-dashboard">
     <div class="stats">
       <div class="stat"><div class="stat-n" id="sTotal">0</div><div class="stat-l">Total</div></div>
@@ -198,22 +139,25 @@
       <div class="stat green"><div class="stat-n" id="sComplete">0</div><div class="stat-l">Complete</div></div>
     </div>
     <div class="card">
-      <div class="card-head">📋 Documents</div>
+      <div class="card-head">
+        📋 Documents
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="syncAll()">🔄 Sync</button>
+      </div>
       <div class="card-body" style="padding:0;" id="dashBody"></div>
     </div>
   </div>
 
-  <!-- ── SETUP ── -->
+  <!-- SETUP -->
   <div class="view" id="view-setup">
     <div class="card">
       <div class="card-head">⚙️ Configuration</div>
       <div class="card-body">
         <div class="cfg-note">
-          Emails are sent automatically via <strong>noreply@nfsdashboard.com</strong>. Fill in your details below — saved locally in your browser.
+          Emails sent via <strong>noreply@nfsdashboard.com</strong>. Signers confirm directly from email — no portal login needed.
         </div>
-        <label>Your Name</label>
+        <label>Your Name *</label>
         <input type="text" id="cfgSender" placeholder="Full name">
-        <label>Your Email (receives completion notification)</label>
+        <label>Your Email * (receives completion notification)</label>
         <input type="email" id="cfgEmail" placeholder="your.email@company.com">
         <label>Signing Deadline</label>
         <input type="text" id="cfgDeadline" placeholder="e.g. 7 days">
@@ -226,11 +170,11 @@
     <div class="card">
       <div class="card-head">👥 Saved Team</div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Save your team here — load instantly when sending documents.</p>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Save your team — load instantly when sending.</p>
         <div id="teamList"></div>
         <div style="display:flex;gap:8px;margin-top:10px;">
           <button class="btn btn-ghost btn-sm" onclick="addTeamRow()">+ Add Person</button>
-          <button class="btn btn-ghost btn-sm" onclick="saveTeam(); toast('Team saved','ok')">💾 Save Team</button>
+          <button class="btn btn-ghost btn-sm" onclick="saveTeam();toast('Team saved','ok')">💾 Save Team</button>
         </div>
       </div>
     </div>
@@ -254,12 +198,11 @@
 <script>
 const WORKER = 'https://nfs-pdf-worker.wmharake.workers.dev';
 
-let docs    = JSON.parse(localStorage.getItem('nfs_docs3')  || '[]');
-let cfg     = JSON.parse(localStorage.getItem('nfs_cfg3')   || '{}');
-let team    = JSON.parse(localStorage.getItem('nfs_team3')  || '[]');
-let signers = [{ name:'', email:'' }];
+let docs = JSON.parse(localStorage.getItem('nfs_docs4') || '[]');
+let cfg  = JSON.parse(localStorage.getItem('nfs_cfg4')  || '{}');
+let team = JSON.parse(localStorage.getItem('nfs_team4') || '[]');
+let signers = [{name:'',email:''}];
 
-// ── INIT ──
 window.onload = () => {
   renderSigners();
   renderDash();
@@ -267,7 +210,6 @@ window.onload = () => {
   renderTeamUI();
 };
 
-// ── NAV ──
 function showView(name, btn) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('header nav button').forEach(b => b.classList.remove('active'));
@@ -283,13 +225,10 @@ function renderSigners() {
       <div class="signer-num">${i+1}</div>
       <input type="text" placeholder="Full name" value="${s.name}" oninput="signers[${i}].name=this.value">
       <input type="email" class="email" placeholder="email@example.com" value="${s.email}" oninput="signers[${i}].email=this.value">
-      ${signers.length>1 ? `<button class="rm-btn" onclick="signers.splice(${i},1);renderSigners()">✕</button>` : '<div style="width:22px"></div>'}
-    </div>
-  `).join('');
+      ${signers.length>1?`<button class="rm-btn" onclick="signers.splice(${i},1);renderSigners()">✕</button>`:'<div style="width:22px"></div>'}
+    </div>`).join('');
 }
-
 function addSigner() { signers.push({name:'',email:''}); renderSigners(); }
-
 function loadTeam() {
   if (!team.length) { toast('No team saved — add one in Setup','err'); return; }
   signers = team.map(m => ({...m}));
@@ -302,124 +241,75 @@ async function sendDoc() {
   const docName = document.getElementById('docName').value.trim();
   const docLink = document.getElementById('docLink').value.trim();
   if (!docName) { toast('Enter a document name','err'); return; }
-
+  if (!cfg.sender || !cfg.email) { toast('Fill in your name and email in Setup first','err'); return; }
   const valid = signers.filter(s => s.name && s.email);
   if (!valid.length) { toast('Add at least one signer','err'); return; }
 
   const btn = document.getElementById('sendBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Sending...';
+  btn.disabled = true; btn.textContent = '⏳ Sending...';
 
   try {
     const id = 'DOC-' + Date.now();
     const doc = {
-      id,
-      name: docName,
+      id, name: docName,
       docLink: docLink || null,
+      deadline: cfg.deadline || '7 days',
       signers: valid.map((s,i) => ({
         ...s, index: i,
         status: i===0 ? 'pending' : 'waiting',
+        token: btoa(id+':'+i+':'+s.email).replace(/=/g,''),
         signedAt: null
       })),
       status: 'In Progress',
       createdAt: new Date().toISOString(),
       currentSigner: 0,
-      originator: { name: cfg.sender || 'NFS Portal', email: cfg.email || '' }
+      originator: { name: cfg.sender, email: cfg.email }
     };
 
-    // Notify first signer
-    const res = await fetch(WORKER, {
+    const res  = await fetch(WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'notify',
-        signerEmail: doc.signers[0].email,
-        signerName:  doc.signers[0].name,
-        docName:     doc.name,
-        docLink:     doc.docLink,
-        position: 1,
-        total:    doc.signers.length,
-        sender:   doc.originator.name,
-        deadline: cfg.deadline || '7 days'
-      })
+      body: JSON.stringify({ action: 'create', doc })
     });
     const data = await res.json();
-    if (!data.success) throw new Error(data.error || 'Failed to send');
+    if (!data.success) throw new Error(data.error || 'Failed');
 
     docs.unshift(doc);
     saveDocs();
     toast('✅ ' + doc.signers[0].name + ' notified', 'ok');
-
-    // Reset form
     document.getElementById('docName').value = '';
     document.getElementById('docLink').value = '';
     signers = [{name:'',email:''}];
     renderSigners();
     setTimeout(() => showView('dashboard', document.querySelectorAll('header nav button')[1]), 1200);
-
   } catch(e) {
     toast('Error: ' + e.message, 'err');
   } finally {
-    btn.disabled = false;
-    btn.textContent = '📤 Send for Signing';
+    btn.disabled = false; btn.textContent = '📤 Send for Signing';
   }
 }
 
-// ── CONFIRM SIGNED ──
-async function confirmSigned(docId) {
-  const doc = docs.find(d => d.id === docId);
-  if (!doc) return;
-  const idx     = doc.currentSigner;
-  const current = doc.signers[idx];
-  if (!current || current.status !== 'pending') { toast('No active signer','err'); return; }
-  if (!confirm(`Confirm that ${current.name} has signed?`)) return;
-
-  current.status   = 'signed';
-  current.signedAt = new Date().toISOString();
-
-  const next = doc.signers[idx + 1];
-  if (next) {
-    doc.currentSigner = idx + 1;
-    next.status = 'pending';
-    const res = await fetch(WORKER, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'notify',
-        signerEmail: next.email,
-        signerName:  next.name,
-        docName:     doc.name,
-        docLink:     doc.docLink,
-        position:    idx + 2,
-        total:       doc.signers.length,
-        sender:      doc.originator.name,
-        deadline:    cfg.deadline || '7 days'
-      })
-    });
-    const data = await res.json();
-    if (data.success) toast('✅ ' + current.name + ' confirmed — ' + next.name + ' notified', 'ok');
-    else toast('Error: ' + data.error, 'err');
-  } else {
-    doc.status = 'Complete';
-    if (doc.originator.email) {
-      await fetch(WORKER, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'complete',
-          originatorEmail: doc.originator.email,
-          originatorName:  doc.originator.name,
-          docName:  doc.name,
-          docLink:  doc.docLink,
-          total:    doc.signers.length
-        })
-      });
-    }
-    toast('🎉 All signatures complete!', 'ok');
+// ── SYNC from KV ──
+async function syncDoc(docId) {
+  const res  = await fetch(WORKER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'status', docId })
+  });
+  const data = await res.json();
+  if (data.success) {
+    const idx = docs.findIndex(d => d.id === docId);
+    if (idx >= 0) { docs[idx] = data.doc; saveDocs(); }
   }
+}
 
-  saveDocs();
+async function syncAll() {
+  toast('Syncing...');
+  for (const doc of docs.filter(d => d.status !== 'Complete')) {
+    await syncDoc(doc.id);
+  }
   renderDash();
+  toast('✅ Synced', 'ok');
 }
 
 // ── DASHBOARD ──
@@ -433,7 +323,6 @@ function renderDash() {
     body.innerHTML = '<div class="empty"><div class="ei">📭</div><h3>No documents yet</h3><p>Send your first document from the Send tab.</p></div>';
     return;
   }
-
   body.innerHTML = `<table>
     <thead><tr><th>Document</th><th>Progress</th><th>Status</th><th>Date</th><th></th></tr></thead>
     <tbody>${docs.map(d => {
@@ -444,7 +333,7 @@ function renderDash() {
       return `<tr>
         <td>
           <div style="font-weight:600;font-size:13px;">${d.name}</div>
-          ${next ? `<div style="font-size:11px;color:var(--blue);margin-top:2px;">⏳ ${next.name}</div>` : ''}
+          ${next?`<div style="font-size:11px;color:var(--blue);margin-top:2px;">⏳ ${next.name}</div>`:''}
         </td>
         <td>
           <div class="prog-wrap">
@@ -457,21 +346,19 @@ function renderDash() {
         <td>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <button class="btn btn-ghost btn-sm" onclick="showDetail('${d.id}')">View</button>
-            ${d.docLink ? `<a href="${d.docLink}" target="_blank" class="btn btn-ghost btn-sm">📄 Doc</a>` : ''}
-            ${d.status!=='Complete' ? `<button class="btn btn-primary btn-sm" onclick="confirmSigned('${d.id}')">✅ Signed</button>` : ''}
+            ${d.docLink?`<a href="${d.docLink}" target="_blank" class="btn btn-ghost btn-sm">📄 Doc</a>`:''}
+            <button class="btn btn-ghost btn-sm" onclick="syncDoc('${d.id}').then(renderDash)">🔄</button>
             <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="delDoc('${d.id}')">🗑</button>
           </div>
         </td>
       </tr>`;
-    }).join('')}</tbody>
-  </table>`;
+    }).join('')}</tbody></table>`;
 }
 
 function delDoc(id) {
   if (!confirm('Delete this document record?')) return;
   docs = docs.filter(d => d.id !== id);
-  saveDocs(); renderDash();
-  toast('Deleted');
+  saveDocs(); renderDash(); toast('Deleted');
 }
 
 // ── DETAIL ──
@@ -489,45 +376,29 @@ function showDetail(id) {
             <div style="flex:1">
               <div class="tl-name">${s.name}</div>
               <div class="tl-role">${s.email}</div>
-              ${s.signedAt
-                ? `<div class="tl-date">Signed ${new Date(s.signedAt).toLocaleString()}</div>`
-                : `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${s.status==='pending'?'⏳ Awaiting signature':'⌛ Waiting'}</div>`}
+              ${s.signedAt?`<div class="tl-date">Signed ${new Date(s.signedAt).toLocaleString()}</div>`
+                :`<div style="font-size:11px;color:var(--muted);margin-top:2px;">${s.status==='pending'?'⏳ Awaiting signature':'⌛ Waiting'}</div>`}
             </div>
-            ${s.status==='pending' ? `<button class="btn btn-primary btn-sm" onclick="closeOverlay('detailOverlay');confirmSigned('${doc.id}')">✅ Signed</button>` : ''}
-          </div>
-        `).join('')}
+          </div>`).join('')}
       </div>
     </div>
     <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;">
-      ${doc.docLink ? `<a href="${doc.docLink}" target="_blank" class="btn btn-primary">📄 Open Document</a>` : ''}
+      ${doc.docLink?`<a href="${doc.docLink}" target="_blank" class="btn btn-primary">📄 Open Document</a>`:''}
       <button class="btn btn-ghost" onclick="resendEmail('${doc.id}')">📧 Resend Email</button>
+      <button class="btn btn-ghost" onclick="syncDoc('${doc.id}').then(()=>{renderDash();closeOverlay('detailOverlay');toast('Synced','ok')})">🔄 Sync</button>
       <button class="btn btn-ghost" onclick="closeOverlay('detailOverlay')">Close</button>
-    </div>
-  `;
+    </div>`;
   document.getElementById('detailOverlay').classList.add('open');
 }
 
 async function resendEmail(id) {
-  const doc  = docs.find(d => d.id === id);
-  const next = doc?.signers.find(s => s.status === 'pending');
-  if (!next) { toast('No pending signer','err'); return; }
-  const res = await fetch(WORKER, {
+  const res  = await fetch(WORKER, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action:      'notify',
-      signerEmail: next.email,
-      signerName:  next.name,
-      docName:     doc.name,
-      docLink:     doc.docLink,
-      position:    next.index + 1,
-      total:       doc.signers.length,
-      sender:      doc.originator?.name || cfg.sender || 'NFS Portal',
-      deadline:    cfg.deadline || '7 days'
-    })
+    body: JSON.stringify({ action: 'resend', docId: id })
   });
   const data = await res.json();
-  if (data.success) toast('📧 Reminder sent to ' + next.name, 'ok');
+  if (data.success) toast('📧 Reminder sent', 'ok');
   else toast('Error: ' + data.error, 'err');
 }
 
@@ -538,10 +409,9 @@ function saveCfg() {
     email:    document.getElementById('cfgEmail').value.trim(),
     deadline: document.getElementById('cfgDeadline').value.trim() || '7 days',
   };
-  localStorage.setItem('nfs_cfg3', JSON.stringify(cfg));
+  localStorage.setItem('nfs_cfg4', JSON.stringify(cfg));
   toast('✅ Configuration saved', 'ok');
 }
-
 function loadCfgUI() {
   if (cfg.sender)   document.getElementById('cfgSender').value   = cfg.sender;
   if (cfg.email)    document.getElementById('cfgEmail').value    = cfg.email;
@@ -550,26 +420,22 @@ function loadCfgUI() {
 
 // ── TEAM ──
 function addTeamRow() { team.push({name:'',email:''}); renderTeamUI(); }
-
 function renderTeamUI() {
   document.getElementById('teamList').innerHTML = team.map((m,i) => `
     <div style="display:flex;gap:8px;margin-bottom:7px;align-items:center;">
       <input type="text" value="${m.name}" placeholder="Full name" style="flex:1;" oninput="team[${i}].name=this.value">
       <input type="email" value="${m.email}" placeholder="email@company.com" style="flex:1.5;" oninput="team[${i}].email=this.value">
       <button class="rm-btn" onclick="team.splice(${i},1);renderTeamUI()">✕</button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
-
-function saveTeam() { localStorage.setItem('nfs_team3', JSON.stringify(team)); }
+function saveTeam() { localStorage.setItem('nfs_team4', JSON.stringify(team)); }
 
 // ── UTILS ──
-function saveDocs() { localStorage.setItem('nfs_docs3', JSON.stringify(docs)); }
+function saveDocs() { localStorage.setItem('nfs_docs4', JSON.stringify(docs)); }
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 function toast(msg, type='') {
   const el = document.getElementById('toastEl');
-  el.textContent = msg;
-  el.className = 'toast show ' + type;
+  el.textContent = msg; el.className = 'toast show ' + type;
   clearTimeout(window._tt);
   window._tt = setTimeout(() => el.classList.remove('show'), 3200);
 }
