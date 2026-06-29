@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NFS — PDF Signing Portal</title>
-<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="https://accounts.google.com/gsi/client"></script>
 <style>
   :root {
     --navy: #0B2545;
@@ -361,6 +361,15 @@ let driveAccessToken = null;
 
 // ── GOOGLE OAUTH ──
 async function getDriveToken(dept) {
+  // Wait for Google Identity Services to load
+  await new Promise((res) => {
+    if (typeof google !== 'undefined') { res(); return; }
+    const interval = setInterval(() => {
+      if (typeof google !== 'undefined') { clearInterval(interval); res(); }
+    }, 100);
+    setTimeout(() => { clearInterval(interval); res(); }, 5000);
+  });
+
   return new Promise((resolve, reject) => {
     const client = google.accounts.oauth2.initTokenClient({
       client_id: OAUTH_CLIENT_ID,
