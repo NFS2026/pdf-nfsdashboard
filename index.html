@@ -246,6 +246,8 @@ async function sendDoc() {
   if (!valid.length) { toast('Add at least one signer','err'); return; }
 
   const btn = document.getElementById('sendBtn');
+  if (btn.getAttribute('data-sending') === 'true') return;
+  btn.setAttribute('data-sending', 'true');
   btn.disabled = true; btn.textContent = '⏳ Sending...';
 
   try {
@@ -285,7 +287,9 @@ async function sendDoc() {
   } catch(e) {
     toast('Error: ' + e.message, 'err');
   } finally {
-    btn.disabled = false; btn.textContent = '📤 Send for Signing';
+    btn.disabled = false;
+    btn.textContent = '📤 Send for Signing';
+    btn.setAttribute('data-sending', 'false');
   }
 }
 
