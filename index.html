@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NFS — PDF Signing Portal</title>
-<script src="https://accounts.google.com/gsi/client"></script>
 <style>
   :root {
     --navy: #0B2545;
@@ -21,15 +20,9 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--gray); color: var(--text); min-height: 100vh; }
 
-  /* HEADER */
   header {
-    background: var(--navy);
-    height: 56px;
-    display: flex;
-    align-items: center;
-    padding: 0 28px;
-    gap: 14px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    background: var(--navy); height: 56px; display: flex; align-items: center;
+    padding: 0 28px; gap: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.25);
   }
   .logo { background: var(--blue); color: #fff; font-weight: 800; font-size: 12px; letter-spacing: 1.5px; padding: 5px 10px; border-radius: 3px; }
   .hdr-title { color: #fff; font-size: 14px; font-weight: 600; }
@@ -42,40 +35,14 @@
   header nav button:hover { background: rgba(255,255,255,.1); color: #fff; }
   header nav button.active { background: var(--blue); color: #fff; }
 
-  /* LAYOUT */
   main { max-width: 760px; margin: 0 auto; padding: 32px 20px; }
   .view { display: none; }
   .view.active { display: block; }
 
-  /* CARD */
   .card { background: #fff; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 18px; overflow: hidden; }
-  .card-head {
-    background: var(--navy); color: #fff; padding: 12px 20px;
-    font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;
-  }
+  .card-head { background: var(--navy); color: #fff; padding: 12px 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
   .card-body { padding: 22px; }
 
-  /* FILE DROP */
-  .drop-zone {
-    border: 2px dashed var(--border); border-radius: 8px;
-    padding: 44px 20px; text-align: center; cursor: pointer;
-    background: var(--gray); transition: all .2s;
-  }
-  .drop-zone:hover, .drop-zone.over { border-color: var(--blue); background: var(--light); }
-  .drop-zone .di { font-size: 38px; margin-bottom: 10px; }
-  .drop-zone h3 { font-size: 14px; margin-bottom: 4px; }
-  .drop-zone p { font-size: 12px; color: var(--muted); }
-  #fileInput { display: none; }
-
-  .file-chosen {
-    display: none; margin-top: 14px; padding: 12px 16px;
-    background: var(--light); border: 1px solid #b8cce8; border-radius: 8px;
-    align-items: center; gap: 10px;
-  }
-  .file-chosen .fn { font-weight: 600; font-size: 13px; flex: 1; }
-  .file-chosen .fs { font-size: 11px; color: var(--muted); }
-
-  /* SIGNERS */
   .signer-row {
     display: flex; align-items: center; gap: 8px;
     background: var(--gray); border: 1px solid var(--border);
@@ -88,31 +55,36 @@
   }
   .signer-row input {
     flex: 1; border: 1.5px solid var(--border); border-radius: 5px;
-    padding: 7px 10px; font-size: 13px; font-family: var(--font); color: var(--text);
-    outline: none; transition: border-color .15s;
+    padding: 7px 10px; font-size: 13px; font-family: var(--font);
+    color: var(--text); outline: none; transition: border-color .15s;
   }
   .signer-row input:focus { border-color: var(--blue); }
   .signer-row input.email { flex: 1.4; }
   .rm-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 15px; padding: 4px 6px; border-radius: 4px; }
   .rm-btn:hover { background: #fdecea; }
 
-  /* BUTTONS */
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font); transition: all .15s; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: var(--font); transition: all .15s; text-decoration: none; }
   .btn-primary { background: var(--blue); color: #fff; }
   .btn-primary:hover { background: #063d87; }
   .btn-ghost { background: transparent; color: var(--blue); border: 1.5px solid var(--blue); }
   .btn-ghost:hover { background: var(--light); }
   .btn-sm { padding: 6px 12px; font-size: 12px; }
-  .btn-success { background: var(--success); color: #fff; }
-  .btn-success:hover { background: #155f3a; }
+  .btn:disabled { opacity: .6; cursor: not-allowed; }
 
   .row-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
 
-  /* DASHBOARD TABLE */
+  label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; display: block; margin-bottom: 5px; margin-top: 12px; }
+  input[type=text], input[type=email], input[type=url] {
+    border: 1.5px solid var(--border); border-radius: 5px; padding: 8px 11px;
+    font-size: 13px; font-family: var(--font); color: var(--text); width: 100%;
+    outline: none; transition: border-color .15s;
+  }
+  input[type=text]:focus, input[type=email]:focus, input[type=url]:focus { border-color: var(--blue); }
+
   .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
   .stat { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; border-left: 4px solid var(--blue); }
   .stat.orange { border-left-color: #b85c00; }
-  .stat.green { border-left-color: var(--success); }
+  .stat.green  { border-left-color: var(--success); }
   .stat-n { font-size: 26px; font-weight: 800; color: var(--navy); }
   .stat-l { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; margin-top: 2px; }
 
@@ -125,7 +97,6 @@
   .badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
   .b-progress { background: #cce5ff; color: #004085; }
   .b-complete { background: #d4edda; color: #155724; }
-  .b-draft { background: #f0f0f0; color: #555; }
 
   .prog-wrap { display: flex; align-items: center; gap: 6px; }
   .prog-bg { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
@@ -136,56 +107,30 @@
   .empty .ei { font-size: 40px; margin-bottom: 12px; }
   .empty h3 { font-size: 15px; color: var(--text); margin-bottom: 6px; }
 
-  /* MODAL */
   .overlay { display: none; position: fixed; inset: 0; background: rgba(11,37,69,.75); z-index: 500; align-items: center; justify-content: center; padding: 16px; }
   .overlay.open { display: flex; }
-  .modal { background: #fff; border-radius: 10px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 16px 48px rgba(0,0,0,.3); }
+  .modal { background: #fff; border-radius: 10px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 16px 48px rgba(0,0,0,.3); }
   .modal-head { background: var(--navy); color: #fff; padding: 16px 22px; display: flex; justify-content: space-between; align-items: center; border-radius: 10px 10px 0 0; }
   .modal-head h3 { font-size: 14px; font-weight: 700; }
   .mclose { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; opacity: .7; }
   .mclose:hover { opacity: 1; }
   .modal-body { padding: 22px; }
 
-  /* SIG PAD */
-  .sig-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 14px; }
-  .sig-tab { padding: 7px 18px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: var(--font); transition: all .15s; }
-  .sig-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
-  .sig-panel { display: none; }
-  .sig-panel.active { display: block; }
-
-  .canvas-wrap { border: 1.5px solid var(--border); border-radius: 7px; overflow: hidden; position: relative; background: #fff; }
-  #sigCanvas { display: block; width: 100%; height: 150px; touch-action: none; }
-  .canvas-hint { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #ccc; font-size: 13px; pointer-events: none; }
-
-  .type-sig { font-family: Georgia, serif; font-size: 26px; font-style: italic; color: var(--navy); text-align: center; border: 1.5px solid var(--border); border-radius: 7px; padding: 18px; width: 100%; }
-  .type-preview { font-family: Georgia, serif; font-size: 30px; font-style: italic; color: var(--navy); text-align: center; padding: 16px; border: 1.5px solid var(--border); border-radius: 7px; margin-top: 10px; min-height: 70px; background: #fafcff; }
-
-  .upload-sig { border: 2px dashed var(--border); border-radius: 7px; padding: 28px; text-align: center; cursor: pointer; background: var(--gray); transition: all .2s; }
-  .upload-sig:hover { border-color: var(--blue); background: var(--light); }
-
-  /* DETAIL TIMELINE */
   .timeline { display: flex; flex-direction: column; }
   .tl-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; position: relative; }
   .tl-item:not(:last-child)::after { content:''; position:absolute; left:12px; top:32px; bottom:-9px; width:2px; background:var(--border); }
   .tl-dot { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; border:2px solid var(--border); background:#fff; color:var(--muted); }
   .tl-dot.signed { background:var(--success); border-color:var(--success); color:#fff; }
-  .tl-dot.active { background:var(--blue); border-color:var(--blue); color:#fff; }
+  .tl-dot.active  { background:var(--blue); border-color:var(--blue); color:#fff; }
   .tl-name { font-size:13px; font-weight:600; }
   .tl-role { font-size:11px; color:var(--muted); }
   .tl-date { font-size:11px; color:var(--success); margin-top:2px; }
 
-  /* CONFIG */
-  .cfg-note { background:#fffbf0; border:1.5px solid #f0d080; border-radius:7px; padding:16px; margin-bottom:14px; font-size:12px; color:#6b5a00; line-height:1.6; }
-  .cfg-note strong { color:#b85c00; }
-  .code { background:var(--navy); color:#a8d8ff; border-radius:5px; padding:10px 14px; font-family:'Courier New',monospace; font-size:11px; margin:8px 0; overflow-x:auto; white-space:pre; }
-  label { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; display:block; margin-bottom:5px; margin-top:12px; }
-  input[type=text], input[type=email] { border:1.5px solid var(--border); border-radius:5px; padding:8px 11px; font-size:13px; font-family:var(--font); color:var(--text); width:100%; outline:none; transition:border-color .15s; }
-  input[type=text]:focus, input[type=email]:focus { border-color:var(--blue); }
+  .cfg-note { background:#fffbf0; border:1.5px solid #f0d080; border-radius:7px; padding:14px 16px; margin-bottom:14px; font-size:12px; color:#6b5a00; line-height:1.6; }
 
-  /* TOAST */
-  .toast { position:fixed; bottom:20px; right:20px; background:var(--navy); color:#fff; padding:12px 18px; border-radius:7px; font-size:13px; font-weight:500; z-index:2000; box-shadow:0 6px 20px rgba(0,0,0,.2); transform:translateY(80px); opacity:0; transition:all .3s; max-width:300px; }
+  .toast { position:fixed; bottom:20px; right:20px; background:var(--navy); color:#fff; padding:12px 18px; border-radius:7px; font-size:13px; font-weight:500; z-index:2000; box-shadow:0 6px 20px rgba(0,0,0,.2); transform:translateY(80px); opacity:0; transition:all .3s; max-width:320px; }
   .toast.show { transform:translateY(0); opacity:1; }
-  .toast.ok { background:var(--success); }
+  .toast.ok  { background:var(--success); }
   .toast.err { background:var(--red); }
 
   @media(max-width:600px) {
@@ -204,64 +149,41 @@
     <div class="hdr-sub">NFS Project</div>
   </div>
   <nav>
-    <button class="active" onclick="showView('upload',this)">📤 Send</button>
+    <button class="active" onclick="showView('send',this)">📤 Send</button>
     <button onclick="showView('dashboard',this)">📋 Documents</button>
-    <button onclick="showView('config',this)">⚙️ Setup</button>
+    <button onclick="showView('setup',this)">⚙️ Setup</button>
   </nav>
 </header>
 
 <main>
 
   <!-- ── SEND ── -->
-  <div class="view active" id="view-upload">
+  <div class="view active" id="view-send">
 
-    <!-- PDF Upload -->
     <div class="card">
-      <div class="card-head">📄 Upload PDF</div>
+      <div class="card-head">📄 Document</div>
       <div class="card-body">
-        <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:block;">Department</label>
-        <div style="display:flex;gap:10px;margin-bottom:16px;">
-          <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;" id="deptPMT">
-            <input type="radio" name="dept" value="PMT" checked onchange="selectedDept=this.value;document.getElementById('deptPMT').style.borderColor='var(--blue)';document.getElementById('deptEI').style.borderColor='var(--border)';" style="accent-color:var(--blue);">
-            🏢 PMT
-          </label>
-          <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;" id="deptEI">
-            <input type="radio" name="dept" value="EI" onchange="selectedDept=this.value;document.getElementById('deptEI').style.borderColor='var(--blue)';document.getElementById('deptPMT').style.borderColor='var(--border)';" style="accent-color:var(--blue);">
-            ⚡ E&I
-          </label>
-        </div>
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-          <div class="di">📁</div>
-          <h3>Drop PDF here or click to browse</h3>
-          <p>The PDF must already contain the signature blocks</p>
-        </div>
-        <input type="file" id="fileInput" accept=".pdf" onchange="handleFile(this)">
-        <div class="file-chosen" id="fileChosen">
-          <span style="font-size:22px;">📄</span>
-          <div style="flex:1">
-            <div class="fn" id="fileName"></div>
-            <div class="fs" id="fileSize"></div>
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="clearFile()">✕ Remove</button>
-        </div>
+        <label>Document Name</label>
+        <input type="text" id="docName" placeholder="e.g. ITP-E&I-001 Rev.2">
+        <label>Document Link <span style="font-weight:400;text-transform:none;font-size:11px;">(optional — SharePoint, Teams, Drive, or any shared URL)</span></label>
+        <input type="url" id="docLink" placeholder="https://... or leave blank">
       </div>
     </div>
 
-    <!-- Signing Order -->
     <div class="card">
       <div class="card-head">
         ✍️ Signing Order
-        <span style="margin-left:auto; font-size:11px; opacity:.65;">Notified one by one in this order</span>
+        <span style="margin-left:auto;font-size:11px;opacity:.65;">Notified one by one in this order</span>
       </div>
       <div class="card-body">
         <div id="signersList"></div>
-        <div style="display:flex; gap:8px; margin-top:10px;">
+        <div style="display:flex;gap:8px;margin-top:10px;">
           <button class="btn btn-ghost btn-sm" onclick="addSigner()">+ Add Signer</button>
-          <button class="btn btn-ghost btn-sm" onclick="loadNFSTeam()">📋 Load NFS Team</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadTeam()">📋 Load Team</button>
         </div>
         <div class="row-actions">
-          <span style="font-size:12px; color:var(--muted);">Each signer gets Drive access + Adobe signing instructions by email</span>
-          <button class="btn btn-primary" onclick="sendDoc()">📤 Send for Signing</button>
+          <span style="font-size:12px;color:var(--muted);">Each signer is notified by email when it's their turn</span>
+          <button class="btn btn-primary" id="sendBtn" onclick="sendDoc()">📤 Send for Signing</button>
         </div>
       </div>
     </div>
@@ -282,34 +204,33 @@
   </div>
 
   <!-- ── SETUP ── -->
-  <div class="view" id="view-config">
+  <div class="view" id="view-setup">
     <div class="card">
-      <div class="card-head">📧 Email Configuration</div>
+      <div class="card-head">⚙️ Configuration</div>
       <div class="card-body">
         <div class="cfg-note">
-          <strong>Email is pre-configured.</strong><br>
-          Signing notifications are sent automatically via <strong>noreply@nfsdashboard.com</strong> through the NFS email worker. No additional setup required.
+          Emails are sent automatically via <strong>noreply@nfsdashboard.com</strong>. Fill in your details below — saved locally in your browser.
         </div>
-        <label>Portal URL</label>
-        <input type="text" id="cfgUrl" placeholder="https://pdf.nfsdashboard.com" oninput="saveCfg()">
-        <label>Your Name (sender)</label>
-        <input type="text" id="cfgSender" placeholder="Wissam Harake" oninput="saveCfg()">
-        <label>Your Email (for completion notification)</label>
-        <input type="email" id="cfgOriginatorEmail" placeholder="wissam.harake@ccc.net" oninput="saveCfg()">
+        <label>Your Name</label>
+        <input type="text" id="cfgSender" placeholder="Full name">
+        <label>Your Email (receives completion notification)</label>
+        <input type="email" id="cfgEmail" placeholder="your.email@company.com">
+        <label>Signing Deadline</label>
+        <input type="text" id="cfgDeadline" placeholder="e.g. 7 days">
         <div style="margin-top:18px;">
-          <button class="btn btn-primary" onclick="saveCfg(); toast('✅ Configuration saved','ok')">Save Configuration</button>
+          <button class="btn btn-primary" onclick="saveCfg()">💾 Save Configuration</button>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-head">👥 NFS Team</div>
+      <div class="card-head">👥 Saved Team</div>
       <div class="card-body">
-        <p style="font-size:12px; color:var(--muted); margin-bottom:14px;">Save your team once — load instantly when sending documents.</p>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Save your team here — load instantly when sending documents.</p>
         <div id="teamList"></div>
-        <div style="display:flex; gap:8px; margin-top:10px;">
+        <div style="display:flex;gap:8px;margin-top:10px;">
           <button class="btn btn-ghost btn-sm" onclick="addTeamRow()">+ Add Person</button>
-          <button class="btn btn-ghost btn-sm" onclick="loadNFSDefaults()">Load NFS Defaults</button>
+          <button class="btn btn-ghost btn-sm" onclick="saveTeam(); toast('Team saved','ok')">💾 Save Team</button>
         </div>
       </div>
     </div>
@@ -331,78 +252,12 @@
 <div class="toast" id="toastEl"></div>
 
 <script>
-// ── STATE ──
-let docs = JSON.parse(localStorage.getItem('nfs_docs2') || '[]');
-let cfg  = JSON.parse(localStorage.getItem('nfs_cfg2')  || '{}');
-let team = JSON.parse(localStorage.getItem('nfs_team2') || '[]');
-let signers = [{ name:'', email:'', role:'Originator' }];
-let selectedFile = null;
-let selectedDept = 'PMT';
-let sigPad = null;
-let _currentDoc = null;
-let _currentSigIdx = null;
 const WORKER = 'https://nfs-pdf-worker.wmharake.workers.dev';
-const OAUTH_CLIENT_ID = '869427437704-f8vuqjj0dt1b2j5528he0fpjdsp7oggd.apps.googleusercontent.com';
-const DRIVE_UPLOAD_URL = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink';
 
-// Department → Drive folder mapping
-const DEPT_FOLDERS = {
-  PMT: '1ovx3pOGsI5zALJhT3jqlcpo9b5kRu8aC',
-  EI:  '1xHy6iaTsEr22mnhpaH7JX4AbhkUlhCdS'
-};
-
-// Department → Gmail account mapping  
-const DEPT_ACCOUNTS = {
-  PMT: 'pmtpdf01@gmail.com',
-  EI:  'eipdf01@gmail.com'
-};
-
-let driveAccessToken = null;
-
-// ── GOOGLE OAUTH ──
-async function getDriveToken(dept) {
-  // Wait for Google Identity Services to load
-  await new Promise((res) => {
-    if (typeof google !== 'undefined') { res(); return; }
-    const interval = setInterval(() => {
-      if (typeof google !== 'undefined') { clearInterval(interval); res(); }
-    }, 100);
-    setTimeout(() => { clearInterval(interval); res(); }, 5000);
-  });
-
-  return new Promise((resolve, reject) => {
-    const client = google.accounts.oauth2.initTokenClient({
-      client_id: OAUTH_CLIENT_ID,
-      scope: 'https://www.googleapis.com/auth/drive.file',
-      hint: DEPT_ACCOUNTS[dept],
-      callback: (resp) => {
-        if (resp.error) reject(new Error(resp.error));
-        else { driveAccessToken = resp.access_token; resolve(resp.access_token); }
-      }
-    });
-    client.requestAccessToken({ prompt: '' });
-  });
-}
-
-// ── UPLOAD TO DRIVE (browser-side) ──
-async function uploadFileToDrive(file, dept) {
-  const token = await getDriveToken(dept);
-  const folderId = DEPT_FOLDERS[dept];
-  
-  const metadata = JSON.stringify({ name: file.name, parents: [folderId] });
-  const form = new FormData();
-  form.append('metadata', new Blob([metadata], { type: 'application/json' }));
-  form.append('file', file);
-
-  const res = await fetch(DRIVE_UPLOAD_URL, {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + token },
-    body: form
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error('Drive upload failed: ' + JSON.stringify(data));
-  return data; // { id, name, webViewLink }
-}
+let docs    = JSON.parse(localStorage.getItem('nfs_docs3')  || '[]');
+let cfg     = JSON.parse(localStorage.getItem('nfs_cfg3')   || '{}');
+let team    = JSON.parse(localStorage.getItem('nfs_team3')  || '[]');
+let signers = [{ name:'', email:'' }];
 
 // ── INIT ──
 window.onload = () => {
@@ -410,11 +265,6 @@ window.onload = () => {
   renderDash();
   loadCfgUI();
   renderTeamUI();
-
-  const dz = document.getElementById('dropZone');
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
 };
 
 // ── NAV ──
@@ -426,24 +276,6 @@ function showView(name, btn) {
   if (name === 'dashboard') renderDash();
 }
 
-// ── FILE ──
-function handleFile(inp) { if(inp.files[0]) processFile(inp.files[0]); }
-function processFile(f) {
-  if (!f.name.toLowerCase().endsWith('.pdf')) { toast('PDF files only','err'); return; }
-  if (f.size > 30*1024*1024) { toast('Max 30MB','err'); return; }
-  selectedFile = f;
-  document.getElementById('fileName').textContent = f.name;
-  document.getElementById('fileSize').textContent = (f.size/1024).toFixed(0) + ' KB';
-  const fc = document.getElementById('fileChosen');
-  fc.style.display = 'flex';
-  toast('Loaded: ' + f.name);
-}
-function clearFile() {
-  selectedFile = null;
-  document.getElementById('fileInput').value = '';
-  document.getElementById('fileChosen').style.display = 'none';
-}
-
 // ── SIGNERS ──
 function renderSigners() {
   document.getElementById('signersList').innerHTML = signers.map((s,i) => `
@@ -451,94 +283,77 @@ function renderSigners() {
       <div class="signer-num">${i+1}</div>
       <input type="text" placeholder="Full name" value="${s.name}" oninput="signers[${i}].name=this.value">
       <input type="email" class="email" placeholder="email@example.com" value="${s.email}" oninput="signers[${i}].email=this.value">
-      ${signers.length>1 ? `<button class="rm-btn" onclick="signers.splice(${i},1); renderSigners()">✕</button>` : '<div style="width:22px"></div>'}
+      ${signers.length>1 ? `<button class="rm-btn" onclick="signers.splice(${i},1);renderSigners()">✕</button>` : '<div style="width:22px"></div>'}
     </div>
   `).join('');
 }
 
-function addSigner() { signers.push({name:'',email:'',role:'Approver'}); renderSigners(); }
+function addSigner() { signers.push({name:'',email:''}); renderSigners(); }
 
-function loadNFSTeam() {
-  const src = team.length ? team : defaultTeam();
-  signers = src.map(m => ({...m}));
+function loadTeam() {
+  if (!team.length) { toast('No team saved — add one in Setup','err'); return; }
+  signers = team.map(m => ({...m}));
   renderSigners();
   toast('Team loaded');
 }
 
-function defaultTeam() {
-  return [
-    {name:'Prince Nedumpuram', email:'prince.nedumpuram@ccc.net', role:'Originator'},
-    {name:'Rabih Rouwadi',     email:'rabih.rouwadi@ccc.net',     role:'PM Construction'},
-    {name:'Wissam Harake',     email:'wissam.harake@ccc.net',     role:'Engineering'},
-    {name:'Ali Eid',           email:'ali.eid@ccc.net',           role:'Project Controls'},
-    {name:'Youssef Hazzouri',  email:'youssef.hazzouri@ccc.net',  role:'Project Director'},
-  ];
-}
-
 // ── SEND ──
 async function sendDoc() {
-  if (!selectedFile) { toast('Upload a PDF first','err'); return; }
+  const docName = document.getElementById('docName').value.trim();
+  const docLink = document.getElementById('docLink').value.trim();
+  if (!docName) { toast('Enter a document name','err'); return; }
+
   const valid = signers.filter(s => s.name && s.email);
   if (!valid.length) { toast('Add at least one signer','err'); return; }
 
-  const btn = document.querySelector('.btn-primary[onclick="sendDoc()"]');
+  const btn = document.getElementById('sendBtn');
   btn.disabled = true;
-  btn.textContent = '⏳ Signing in to Drive...';
+  btn.textContent = '⏳ Sending...';
 
   try {
-    // Upload directly from browser to Google Drive
-    btn.textContent = '⏳ Uploading to Drive...';
-    const driveFile = await uploadFileToDrive(selectedFile, selectedDept);
-
-    btn.textContent = '⏳ Sending notifications...';
-
     const id = 'DOC-' + Date.now();
     const doc = {
       id,
-      name: selectedFile.name,
-      department: selectedDept,
-      fileId: driveFile.id,
-      driveLink: driveFile.webViewLink,
+      name: docName,
+      docLink: docLink || null,
       signers: valid.map((s,i) => ({
-        ...s,
-        index: i,
+        ...s, index: i,
         status: i===0 ? 'pending' : 'waiting',
-        token: btoa(id+':'+i+':'+s.email).replace(/=/g,''),
-        signedAt: null,
-        permissionId: null
+        signedAt: null
       })),
       status: 'In Progress',
       createdAt: new Date().toISOString(),
       currentSigner: 0,
-      originator: { name: cfg.sender || 'NFS Portal', email: cfg.originatorEmail || '' }
+      originator: { name: cfg.sender || 'NFS Portal', email: cfg.email || '' }
     };
 
-    // Grant access + notify first signer
-    const notifyRes = await fetch(WORKER, {
+    // Notify first signer
+    const res = await fetch(WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'notify',
-        fileId: doc.fileId,
         signerEmail: doc.signers[0].email,
-        signerName: doc.signers[0].name,
-        driveLink: doc.driveLink,
-        docName: doc.name,
+        signerName:  doc.signers[0].name,
+        docName:     doc.name,
+        docLink:     doc.docLink,
         position: 1,
-        total: doc.signers.length,
-        sender: doc.originator.name,
-        deadline: '7 days'
+        total:    doc.signers.length,
+        sender:   doc.originator.name,
+        deadline: cfg.deadline || '7 days'
       })
     });
-    const notifyData = await notifyRes.json();
-    if (notifyData.success) doc.signers[0].permissionId = notifyData.permissionId;
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed to send');
 
     docs.unshift(doc);
     saveDocs();
-    toast('✅ Uploaded to Drive — ' + doc.signers[0].name + ' notified', 'ok');
+    toast('✅ ' + doc.signers[0].name + ' notified', 'ok');
 
-    clearFile();
-    signers = [{name:'',email:'',role:'Originator'}];
+    // Reset form
+    document.getElementById('docName').value = '';
+    document.getElementById('docLink').value = '';
+    signers = [{name:'',email:''}];
     renderSigners();
     setTimeout(() => showView('dashboard', document.querySelectorAll('header nav button')[1]), 1200);
 
@@ -554,65 +369,53 @@ async function sendDoc() {
 async function confirmSigned(docId) {
   const doc = docs.find(d => d.id === docId);
   if (!doc) return;
-  const idx = doc.currentSigner;
+  const idx     = doc.currentSigner;
   const current = doc.signers[idx];
   if (!current || current.status !== 'pending') { toast('No active signer','err'); return; }
-
   if (!confirm(`Confirm that ${current.name} has signed?`)) return;
 
-  // Revoke current signer's Drive access
-  if (current.permissionId) {
-    await fetch(WORKER, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'revoke', fileId: doc.fileId, permissionId: current.permissionId })
-    });
-  }
-
-  current.status = 'signed';
+  current.status   = 'signed';
   current.signedAt = new Date().toISOString();
 
   const next = doc.signers[idx + 1];
   if (next) {
-    // Grant access + notify next signer
     doc.currentSigner = idx + 1;
     next.status = 'pending';
-    const notifyRes = await fetch(WORKER, {
+    const res = await fetch(WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'notify',
-        fileId: doc.fileId,
         signerEmail: next.email,
-        signerName: next.name,
-        driveLink: doc.driveLink,
-        docName: doc.name,
-        position: idx + 2,
-        total: doc.signers.length,
-        sender: doc.originator.name,
-        deadline: '7 days'
+        signerName:  next.name,
+        docName:     doc.name,
+        docLink:     doc.docLink,
+        position:    idx + 2,
+        total:       doc.signers.length,
+        sender:      doc.originator.name,
+        deadline:    cfg.deadline || '7 days'
       })
     });
-    const nd = await notifyRes.json();
-    if (nd.success) next.permissionId = nd.permissionId;
-    toast('✅ ' + current.name + ' confirmed — ' + next.name + ' notified', 'ok');
+    const data = await res.json();
+    if (data.success) toast('✅ ' + current.name + ' confirmed — ' + next.name + ' notified', 'ok');
+    else toast('Error: ' + data.error, 'err');
   } else {
-    // All signed — notify originator
     doc.status = 'Complete';
-    await fetch(WORKER, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'complete',
-        fileId: doc.fileId,
-        originatorEmail: doc.originator.email,
-        originatorName: doc.originator.name,
-        docName: doc.name,
-        driveLink: doc.driveLink,
-        total: doc.signers.length
-      })
-    });
-    toast('🎉 All signatures complete! Download from Drive then delete.', 'ok');
+    if (doc.originator.email) {
+      await fetch(WORKER, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'complete',
+          originatorEmail: doc.originator.email,
+          originatorName:  doc.originator.name,
+          docName:  doc.name,
+          docLink:  doc.docLink,
+          total:    doc.signers.length
+        })
+      });
+    }
+    toast('🎉 All signatures complete!', 'ok');
   }
 
   saveDocs();
@@ -621,18 +424,18 @@ async function confirmSigned(docId) {
 
 // ── DASHBOARD ──
 function renderDash() {
-  document.getElementById('sTotal').textContent   = docs.length;
+  document.getElementById('sTotal').textContent    = docs.length;
   document.getElementById('sPending').textContent  = docs.filter(d=>d.status==='In Progress').length;
   document.getElementById('sComplete').textContent = docs.filter(d=>d.status==='Complete').length;
 
   const body = document.getElementById('dashBody');
   if (!docs.length) {
-    body.innerHTML = '<div class="empty"><div class="ei">📭</div><h3>No documents yet</h3><p>Send your first PDF from the Send tab.</p></div>';
+    body.innerHTML = '<div class="empty"><div class="ei">📭</div><h3>No documents yet</h3><p>Send your first document from the Send tab.</p></div>';
     return;
   }
 
   body.innerHTML = `<table>
-    <thead><tr><th>File</th><th>Progress</th><th>Status</th><th>Sent</th><th></th></tr></thead>
+    <thead><tr><th>Document</th><th>Progress</th><th>Status</th><th>Date</th><th></th></tr></thead>
     <tbody>${docs.map(d => {
       const signed = d.signers.filter(s=>s.status==='signed').length;
       const total  = d.signers.length;
@@ -640,8 +443,8 @@ function renderDash() {
       const next   = d.signers.find(s=>s.status==='pending');
       return `<tr>
         <td>
-          <div style="font-weight:600; font-size:13px;">${d.name}</div>
-          ${next ? `<div style="font-size:11px; color:var(--blue); margin-top:2px;">⏳ ${next.name}</div>` : ''}
+          <div style="font-weight:600;font-size:13px;">${d.name}</div>
+          ${next ? `<div style="font-size:11px;color:var(--blue);margin-top:2px;">⏳ ${next.name}</div>` : ''}
         </td>
         <td>
           <div class="prog-wrap">
@@ -650,12 +453,12 @@ function renderDash() {
           </div>
         </td>
         <td><span class="badge ${d.status==='Complete'?'b-complete':'b-progress'}">${d.status==='Complete'?'✅ Complete':'🔄 In Progress'}</span></td>
-        <td style="font-size:11px; color:var(--muted);">${new Date(d.createdAt).toLocaleDateString()}</td>
+        <td style="font-size:11px;color:var(--muted);">${new Date(d.createdAt).toLocaleDateString()}</td>
         <td>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <button class="btn btn-ghost btn-sm" onclick="showDetail('${d.id}')">View</button>
-            ${d.driveLink ? `<a href="${d.driveLink}" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none;">☁️ Drive</a>` : ''}
-            ${d.status!=='Complete' ? `<button class="btn btn-primary btn-sm" onclick="confirmSigned('${d.id}')">✅ I Have Signed</button>` : ''}
+            ${d.docLink ? `<a href="${d.docLink}" target="_blank" class="btn btn-ghost btn-sm">📄 Doc</a>` : ''}
+            ${d.status!=='Complete' ? `<button class="btn btn-primary btn-sm" onclick="confirmSigned('${d.id}')">✅ Signed</button>` : ''}
             <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="delDoc('${d.id}')">🗑</button>
           </div>
         </td>
@@ -665,7 +468,7 @@ function renderDash() {
 }
 
 function delDoc(id) {
-  if (!confirm('Delete this document?')) return;
+  if (!confirm('Delete this document record?')) return;
   docs = docs.filter(d => d.id !== id);
   saveDocs(); renderDash();
   toast('Deleted');
@@ -678,7 +481,7 @@ function showDetail(id) {
   document.getElementById('detailTitle').textContent = doc.name;
   document.getElementById('detailBody').innerHTML = `
     <div style="margin-bottom:16px;">
-      <div style="font-size:12px; color:var(--muted); margin-bottom:10px; font-weight:600; text-transform:uppercase; letter-spacing:.4px;">Signing Chain</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Signing Chain</div>
       <div class="timeline">
         ${doc.signers.map((s,i) => `
           <div class="tl-item">
@@ -686,88 +489,82 @@ function showDetail(id) {
             <div style="flex:1">
               <div class="tl-name">${s.name}</div>
               <div class="tl-role">${s.email}</div>
-              ${s.signedAt ? `<div class="tl-date">Signed ${new Date(s.signedAt).toLocaleString()}</div>` :
-                `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${s.status==='pending'?'⏳ Awaiting signature':'⌛ Waiting'}</div>`}
+              ${s.signedAt
+                ? `<div class="tl-date">Signed ${new Date(s.signedAt).toLocaleString()}</div>`
+                : `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${s.status==='pending'?'⏳ Awaiting signature':'⌛ Waiting'}</div>`}
             </div>
-            ${s.status==='pending' ? `<button class="btn btn-primary btn-sm" onclick="closeOverlay('detailOverlay'); confirmSigned('${doc.id}')">✅ I Have Signed</button>` : ''}
+            ${s.status==='pending' ? `<button class="btn btn-primary btn-sm" onclick="closeOverlay('detailOverlay');confirmSigned('${doc.id}')">✅ Signed</button>` : ''}
           </div>
         `).join('')}
       </div>
     </div>
-    <div style="display:flex; gap:8px; padding-top:14px; border-top:1px solid var(--border);">
-      ${doc.driveLink ? `<a href="${doc.driveLink}" target="_blank" class="btn btn-primary" style="text-decoration:none;">☁️ Open in Drive</a>` : ''}
-      <button class="btn btn-ghost" onclick="resend('${doc.id}')">📧 Resend Email</button>
+    <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;">
+      ${doc.docLink ? `<a href="${doc.docLink}" target="_blank" class="btn btn-primary">📄 Open Document</a>` : ''}
+      <button class="btn btn-ghost" onclick="resendEmail('${doc.id}')">📧 Resend Email</button>
       <button class="btn btn-ghost" onclick="closeOverlay('detailOverlay')">Close</button>
     </div>
   `;
   document.getElementById('detailOverlay').classList.add('open');
 }
 
-async function resend(id) {
-  const doc = docs.find(d => d.id === id);
+async function resendEmail(id) {
+  const doc  = docs.find(d => d.id === id);
   const next = doc?.signers.find(s => s.status === 'pending');
   if (!next) { toast('No pending signer','err'); return; }
   const res = await fetch(WORKER, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      action: 'notify',
-      fileId: doc.fileId,
+      action:      'notify',
       signerEmail: next.email,
-      signerName: next.name,
-      driveLink: doc.driveLink,
-      docName: doc.name,
-      position: next.index + 1,
-      total: doc.signers.length,
-      sender: doc.originator?.name || cfg.sender || 'NFS Portal',
-      deadline: '7 days'
+      signerName:  next.name,
+      docName:     doc.name,
+      docLink:     doc.docLink,
+      position:    next.index + 1,
+      total:       doc.signers.length,
+      sender:      doc.originator?.name || cfg.sender || 'NFS Portal',
+      deadline:    cfg.deadline || '7 days'
     })
   });
   const data = await res.json();
   if (data.success) toast('📧 Reminder sent to ' + next.name, 'ok');
-  else toast('Error: ' + JSON.stringify(data.error), 'err');
+  else toast('Error: ' + data.error, 'err');
 }
 
 // ── CONFIG ──
 function saveCfg() {
   cfg = {
-    url:            document.getElementById('cfgUrl').value,
-    sender:         document.getElementById('cfgSender').value,
-    originatorEmail: document.getElementById('cfgOriginatorEmail').value,
+    sender:   document.getElementById('cfgSender').value.trim(),
+    email:    document.getElementById('cfgEmail').value.trim(),
+    deadline: document.getElementById('cfgDeadline').value.trim() || '7 days',
   };
-  localStorage.setItem('nfs_cfg2', JSON.stringify(cfg));
+  localStorage.setItem('nfs_cfg3', JSON.stringify(cfg));
+  toast('✅ Configuration saved', 'ok');
 }
 
 function loadCfgUI() {
-  if(cfg.url)             document.getElementById('cfgUrl').value             = cfg.url;
-  if(cfg.sender)          document.getElementById('cfgSender').value          = cfg.sender;
-  if(cfg.originatorEmail) document.getElementById('cfgOriginatorEmail').value = cfg.originatorEmail;
+  if (cfg.sender)   document.getElementById('cfgSender').value   = cfg.sender;
+  if (cfg.email)    document.getElementById('cfgEmail').value    = cfg.email;
+  if (cfg.deadline) document.getElementById('cfgDeadline').value = cfg.deadline;
 }
 
 // ── TEAM ──
-function loadNFSDefaults() {
-  team = defaultTeam();
-  localStorage.setItem('nfs_team2', JSON.stringify(team));
-  renderTeamUI();
-  toast('NFS defaults loaded');
-}
-
-function addTeamRow() { team.push({name:'',email:'',role:''}); renderTeamUI(); }
+function addTeamRow() { team.push({name:'',email:''}); renderTeamUI(); }
 
 function renderTeamUI() {
   document.getElementById('teamList').innerHTML = team.map((m,i) => `
-    <div style="display:flex; gap:8px; margin-bottom:7px; align-items:center;">
-      <input type="text" value="${m.name}" placeholder="Full name" style="flex:1;" oninput="team[${i}].name=this.value; saveTeam()">
-      <input type="email" value="${m.email}" placeholder="email@ccc.net" style="flex:1.5;" oninput="team[${i}].email=this.value; saveTeam()">
-      <button class="rm-btn" onclick="team.splice(${i},1); renderTeamUI()">✕</button>
+    <div style="display:flex;gap:8px;margin-bottom:7px;align-items:center;">
+      <input type="text" value="${m.name}" placeholder="Full name" style="flex:1;" oninput="team[${i}].name=this.value">
+      <input type="email" value="${m.email}" placeholder="email@company.com" style="flex:1.5;" oninput="team[${i}].email=this.value">
+      <button class="rm-btn" onclick="team.splice(${i},1);renderTeamUI()">✕</button>
     </div>
   `).join('');
 }
 
-function saveTeam() { localStorage.setItem('nfs_team2', JSON.stringify(team)); }
+function saveTeam() { localStorage.setItem('nfs_team3', JSON.stringify(team)); }
 
 // ── UTILS ──
-function saveDocs() { localStorage.setItem('nfs_docs2', JSON.stringify(docs)); }
+function saveDocs() { localStorage.setItem('nfs_docs3', JSON.stringify(docs)); }
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 function toast(msg, type='') {
   const el = document.getElementById('toastEl');
