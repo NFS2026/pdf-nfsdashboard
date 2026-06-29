@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NFS — PDF Signing Portal</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/4.1.7/signature_pad.umd.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async></script>
 <style>
   :root {
     --navy: #0B2545;
@@ -342,6 +342,58 @@ let sigPad = null;
 let _currentDoc = null;
 let _currentSigIdx = null;
 const WORKER = 'https://nfs-pdf-worker.wmharake.workers.dev';
+const OAUTH_CLIENT_ID = '869427437704-f8vuqjj0dt1b2j5528he0fpjdsp7oggd.apps.googleusercontent.com';
+const DRIVE_UPLOAD_URL = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink';
+
+// Department → Drive folder mapping
+const DEPT_FOLDERS = {
+  PMT: '1ovx3pOGsI5zALJhT3jqlcpo9b5kRu8aC',
+  EI:  '1xHy6iaTsEr22mnhpaH7JX4AbhkUlhCdS'
+};
+
+// Department → Gmail account mapping  
+const DEPT_ACCOUNTS = {
+  PMT: 'pmtpdf01@gmail.com',
+  EI:  'eipdf01@gmail.com'
+};
+
+let driveAccessToken = null;
+
+// ── GOOGLE OAUTH ──
+async function getDriveToken(dept) {
+  return new Promise((resolve, reject) => {
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: OAUTH_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      hint: DEPT_ACCOUNTS[dept],
+      callback: (resp) => {
+        if (resp.error) reject(new Error(resp.error));
+        else { driveAccessToken = resp.access_token; resolve(resp.access_token); }
+      }
+    });
+    client.requestAccessToken({ prompt: '' });
+  });
+}
+
+// ── UPLOAD TO DRIVE (browser-side) ──
+async function uploadFileToDrive(file, dept) {
+  const token = await getDriveToken(dept);
+  const folderId = DEPT_FOLDERS[dept];
+  
+  const metadata = JSON.stringify({ name: file.name, parents: [folderId] });
+  const form = new FormData();
+  form.append('metadata', new Blob([metadata], { type: 'application/json' }));
+  form.append('file', file);
+
+  const res = await fetch(DRIVE_UPLOAD_URL, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token },
+    body: form
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error('Drive upload failed: ' + JSON.stringify(data));
+  return data; // { id, name, webViewLink }
+}
 
 // ── INIT ──
 window.onload = () => {
@@ -422,30 +474,12 @@ async function sendDoc() {
 
   const btn = document.querySelector('.btn-primary[onclick="sendDoc()"]');
   btn.disabled = true;
-  btn.textContent = '⏳ Uploading to Drive...';
+  btn.textContent = '⏳ Signing in to Drive...';
 
   try {
-    // Read file as base64
-    const fileBase64 = await new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(r.result.split(',')[1]);
-      r.onerror = rej;
-      r.readAsDataURL(selectedFile);
-    });
-
-    // Upload to Google Drive
-    const upRes = await fetch(WORKER, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'upload',
-        department: selectedDept,
-        fileName: selectedFile.name,
-        fileBase64
-      })
-    });
-    const upData = await upRes.json();
-    if (!upData.success) throw new Error(upData.error || 'Upload failed');
+    // Upload directly from browser to Google Drive
+    btn.textContent = '⏳ Uploading to Drive...';
+    const driveFile = await uploadFileToDrive(selectedFile, selectedDept);
 
     btn.textContent = '⏳ Sending notifications...';
 
@@ -454,8 +488,8 @@ async function sendDoc() {
       id,
       name: selectedFile.name,
       department: selectedDept,
-      fileId: upData.fileId,
-      driveLink: upData.driveLink,
+      fileId: driveFile.id,
+      driveLink: driveFile.webViewLink,
       signers: valid.map((s,i) => ({
         ...s,
         index: i,
