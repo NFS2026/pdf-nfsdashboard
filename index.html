@@ -219,6 +219,17 @@
     <div class="card">
       <div class="card-head">📄 Upload PDF</div>
       <div class="card-body">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:block;">Department</label>
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;" id="deptPMT">
+            <input type="radio" name="dept" value="PMT" checked onchange="selectedDept=this.value;document.getElementById('deptPMT').style.borderColor='var(--blue)';document.getElementById('deptEI').style.borderColor='var(--border)';" style="accent-color:var(--blue);">
+            🏢 PMT
+          </label>
+          <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--border);border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;" id="deptEI">
+            <input type="radio" name="dept" value="EI" onchange="selectedDept=this.value;document.getElementById('deptEI').style.borderColor='var(--blue)';document.getElementById('deptPMT').style.borderColor='var(--border)';" style="accent-color:var(--blue);">
+            ⚡ E&I
+          </label>
+        </div>
         <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
           <div class="di">📁</div>
           <h3>Drop PDF here or click to browse</h3>
@@ -249,7 +260,7 @@
           <button class="btn btn-ghost btn-sm" onclick="loadNFSTeam()">📋 Load NFS Team</button>
         </div>
         <div class="row-actions">
-          <span style="font-size:12px; color:var(--muted);">Each signer gets a secure email link — no account needed</span>
+          <span style="font-size:12px; color:var(--muted);">Each signer gets Drive access + Adobe signing instructions by email</span>
           <button class="btn btn-primary" onclick="sendDoc()">📤 Send for Signing</button>
         </div>
       </div>
@@ -283,6 +294,8 @@
         <input type="text" id="cfgUrl" placeholder="https://pdf.nfsdashboard.com" oninput="saveCfg()">
         <label>Your Name (sender)</label>
         <input type="text" id="cfgSender" placeholder="Wissam Harake" oninput="saveCfg()">
+        <label>Your Email (for completion notification)</label>
+        <input type="email" id="cfgOriginatorEmail" placeholder="wissam.harake@ccc.net" oninput="saveCfg()">
         <div style="margin-top:18px;">
           <button class="btn btn-primary" onclick="saveCfg(); toast('✅ Configuration saved','ok')">Save Configuration</button>
         </div>
@@ -304,52 +317,6 @@
 
 </main>
 
-<!-- SIGN MODAL -->
-<div class="overlay" id="signOverlay">
-  <div class="modal">
-    <div class="modal-head">
-      <h3 id="signModalTitle">✍️ Sign Document</h3>
-      <button class="mclose" onclick="closeOverlay('signOverlay')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div id="signInfo" style="background:var(--light); border-radius:7px; padding:12px 14px; margin-bottom:18px; font-size:13px;"></div>
-
-      <div class="sig-tabs">
-        <button class="sig-tab active" onclick="switchTab('draw',this)">✏️ Draw</button>
-        <button class="sig-tab" onclick="switchTab('type',this)">Aa Type</button>
-        <button class="sig-tab" onclick="switchTab('img',this)">🖼 Upload</button>
-      </div>
-
-      <div class="sig-panel active" id="panel-draw">
-        <div class="canvas-wrap">
-          <canvas id="sigCanvas"></canvas>
-          <div class="canvas-hint" id="canvasHint">Sign here with mouse or finger</div>
-        </div>
-        <button class="btn btn-ghost btn-sm" onclick="clearPad()" style="margin-top:8px;">✕ Clear</button>
-      </div>
-
-      <div class="sig-panel" id="panel-type">
-        <input class="type-sig" type="text" id="typedSig" placeholder="Type your full name" oninput="document.getElementById('typePreview').textContent=this.value">
-        <div class="type-preview" id="typePreview"></div>
-      </div>
-
-      <div class="sig-panel" id="panel-img">
-        <div class="upload-sig" onclick="document.getElementById('imgInput').click()">
-          <div style="font-size:28px; margin-bottom:6px;">🖼</div>
-          <p style="font-size:12px; color:var(--muted);">Click to upload PNG / JPG signature</p>
-          <img id="imgPreview" style="display:none; max-height:90px; margin-top:10px; border-radius:4px;">
-        </div>
-        <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="loadSigImg(this)">
-      </div>
-
-      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
-        <button class="btn btn-ghost" onclick="closeOverlay('signOverlay')">Cancel</button>
-        <button class="btn btn-success" onclick="applySign()">✅ Apply Signature</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- DETAIL MODAL -->
 <div class="overlay" id="detailOverlay">
   <div class="modal">
@@ -370,13 +337,14 @@ let cfg  = JSON.parse(localStorage.getItem('nfs_cfg2')  || '{}');
 let team = JSON.parse(localStorage.getItem('nfs_team2') || '[]');
 let signers = [{ name:'', email:'', role:'Originator' }];
 let selectedFile = null;
+let selectedDept = 'PMT';
 let sigPad = null;
 let _currentDoc = null;
 let _currentSigIdx = null;
+const WORKER = 'https://nfs-pdf-worker.wmharake.workers.dev';
 
 // ── INIT ──
 window.onload = () => {
-  initPad();
   renderSigners();
   renderDash();
   loadCfgUI();
@@ -386,20 +354,6 @@ window.onload = () => {
   dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('over'));
   dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if(e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]); });
-
-  // Handle signing link
-  const p = new URLSearchParams(location.search);
-  if (p.get('sign') && p.get('doc')) {
-    const doc = docs.find(d => d.id === p.get('doc'));
-    if (doc) {
-      const idx = doc.signers.findIndex(s => s.token === p.get('sign'));
-      if (idx >= 0 && doc.signers[idx].status === 'pending') {
-        setTimeout(() => openSignModal(doc.id, idx), 400);
-      } else {
-        toast('This signing link has already been used or is not yet active.','err');
-      }
-    }
-  }
 };
 
 // ── NAV ──
@@ -466,61 +420,160 @@ async function sendDoc() {
   const valid = signers.filter(s => s.name && s.email);
   if (!valid.length) { toast('Add at least one signer','err'); return; }
 
-  const id = 'DOC-' + Date.now();
-  const doc = {
-    id,
-    name: selectedFile.name,
-    signers: valid.map((s,i) => ({
-      ...s,
-      index: i,
-      status: i===0 ? 'pending' : 'waiting',
-      token: btoa(id+':'+i+':'+s.email).replace(/=/g,''),
-      signedAt: null,
-      sigData: null
-    })),
-    status: 'In Progress',
-    createdAt: new Date().toISOString(),
-    currentSigner: 0
-  };
-
-  docs.unshift(doc);
-  saveDocs();
-  await sendEmail(doc, 0);
-  toast('✅ Sent — ' + valid[0].name + ' notified','ok');
-
-  clearFile();
-  signers = [{name:'',email:'',role:'Originator'}];
-  renderSigners();
-  setTimeout(() => showView('dashboard', document.querySelectorAll('header nav button')[1]), 1200);
-}
-
-// ── EMAIL ──
-async function sendEmail(doc, idx) {
-  const s = doc.signers[idx];
-  const base = cfg.url || location.origin + location.pathname;
-  const link = `${base}?sign=${s.token}&doc=${doc.id}`;
+  const btn = document.querySelector('.btn-primary[onclick="sendDoc()"]');
+  btn.disabled = true;
+  btn.textContent = '⏳ Uploading to Drive...';
 
   try {
-    const res = await fetch('https://email.nfsdashboard.com', {
+    // Read file as base64
+    const fileBase64 = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result.split(',')[1]);
+      r.onerror = rej;
+      r.readAsDataURL(selectedFile);
+    });
+
+    // Upload to Google Drive
+    const upRes = await fetch(WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        to_email: s.email,
-        signer_name: s.name,
-        doc_name: doc.name,
-        signing_link: link,
-        position: idx + 1,
+        action: 'upload',
+        department: selectedDept,
+        fileName: selectedFile.name,
+        fileBase64
+      })
+    });
+    const upData = await upRes.json();
+    if (!upData.success) throw new Error(upData.error || 'Upload failed');
+
+    btn.textContent = '⏳ Sending notifications...';
+
+    const id = 'DOC-' + Date.now();
+    const doc = {
+      id,
+      name: selectedFile.name,
+      department: selectedDept,
+      fileId: upData.fileId,
+      driveLink: upData.driveLink,
+      signers: valid.map((s,i) => ({
+        ...s,
+        index: i,
+        status: i===0 ? 'pending' : 'waiting',
+        token: btoa(id+':'+i+':'+s.email).replace(/=/g,''),
+        signedAt: null,
+        permissionId: null
+      })),
+      status: 'In Progress',
+      createdAt: new Date().toISOString(),
+      currentSigner: 0,
+      originator: { name: cfg.sender || 'NFS Portal', email: cfg.originatorEmail || '' }
+    };
+
+    // Grant access + notify first signer
+    const notifyRes = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'notify',
+        fileId: doc.fileId,
+        signerEmail: doc.signers[0].email,
+        signerName: doc.signers[0].name,
+        driveLink: doc.driveLink,
+        docName: doc.name,
+        position: 1,
         total: doc.signers.length,
-        sender: cfg.sender || 'NFS Portal',
+        sender: doc.originator.name,
         deadline: '7 days'
       })
     });
-    const data = await res.json();
-    if (data.success) toast('📧 Email sent to ' + s.name, 'ok');
-    else toast('Email error: ' + JSON.stringify(data.error), 'err');
+    const notifyData = await notifyRes.json();
+    if (notifyData.success) doc.signers[0].permissionId = notifyData.permissionId;
+
+    docs.unshift(doc);
+    saveDocs();
+    toast('✅ Uploaded to Drive — ' + doc.signers[0].name + ' notified', 'ok');
+
+    clearFile();
+    signers = [{name:'',email:'',role:'Originator'}];
+    renderSigners();
+    setTimeout(() => showView('dashboard', document.querySelectorAll('header nav button')[1]), 1200);
+
   } catch(e) {
-    toast('Error sending email: ' + e.message, 'err');
+    toast('Error: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📤 Send for Signing';
   }
+}
+
+// ── CONFIRM SIGNED ──
+async function confirmSigned(docId) {
+  const doc = docs.find(d => d.id === docId);
+  if (!doc) return;
+  const idx = doc.currentSigner;
+  const current = doc.signers[idx];
+  if (!current || current.status !== 'pending') { toast('No active signer','err'); return; }
+
+  if (!confirm(`Confirm that ${current.name} has signed?`)) return;
+
+  // Revoke current signer's Drive access
+  if (current.permissionId) {
+    await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'revoke', fileId: doc.fileId, permissionId: current.permissionId })
+    });
+  }
+
+  current.status = 'signed';
+  current.signedAt = new Date().toISOString();
+
+  const next = doc.signers[idx + 1];
+  if (next) {
+    // Grant access + notify next signer
+    doc.currentSigner = idx + 1;
+    next.status = 'pending';
+    const notifyRes = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'notify',
+        fileId: doc.fileId,
+        signerEmail: next.email,
+        signerName: next.name,
+        driveLink: doc.driveLink,
+        docName: doc.name,
+        position: idx + 2,
+        total: doc.signers.length,
+        sender: doc.originator.name,
+        deadline: '7 days'
+      })
+    });
+    const nd = await notifyRes.json();
+    if (nd.success) next.permissionId = nd.permissionId;
+    toast('✅ ' + current.name + ' confirmed — ' + next.name + ' notified', 'ok');
+  } else {
+    // All signed — notify originator
+    doc.status = 'Complete';
+    await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'complete',
+        fileId: doc.fileId,
+        originatorEmail: doc.originator.email,
+        originatorName: doc.originator.name,
+        docName: doc.name,
+        driveLink: doc.driveLink,
+        total: doc.signers.length
+      })
+    });
+    toast('🎉 All signatures complete! Download from Drive then delete.', 'ok');
+  }
+
+  saveDocs();
+  renderDash();
 }
 
 // ── DASHBOARD ──
@@ -556,9 +609,10 @@ function renderDash() {
         <td><span class="badge ${d.status==='Complete'?'b-complete':'b-progress'}">${d.status==='Complete'?'✅ Complete':'🔄 In Progress'}</span></td>
         <td style="font-size:11px; color:var(--muted);">${new Date(d.createdAt).toLocaleDateString()}</td>
         <td>
-          <div style="display:flex; gap:6px;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
             <button class="btn btn-ghost btn-sm" onclick="showDetail('${d.id}')">View</button>
-            ${d.status!=='Complete' ? `<button class="btn btn-primary btn-sm" onclick="openSignModal('${d.id}')">Sign</button>` : ''}
+            ${d.driveLink ? `<a href="${d.driveLink}" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none;">☁️ Drive</a>` : ''}
+            ${d.status!=='Complete' ? `<button class="btn btn-primary btn-sm" onclick="confirmSigned('${d.id}')">✅ I Have Signed</button>` : ''}
             <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="delDoc('${d.id}')">🗑</button>
           </div>
         </td>
@@ -592,13 +646,13 @@ function showDetail(id) {
               ${s.signedAt ? `<div class="tl-date">Signed ${new Date(s.signedAt).toLocaleString()}</div>` :
                 `<div style="font-size:11px;color:var(--muted);margin-top:2px;">${s.status==='pending'?'⏳ Awaiting signature':'⌛ Waiting'}</div>`}
             </div>
-            ${s.status==='pending' ? `<button class="btn btn-primary btn-sm" onclick="closeOverlay('detailOverlay'); openSignModal('${doc.id}',${i})">Sign Now</button>` : ''}
+            ${s.status==='pending' ? `<button class="btn btn-primary btn-sm" onclick="closeOverlay('detailOverlay'); confirmSigned('${doc.id}')">✅ I Have Signed</button>` : ''}
           </div>
         `).join('')}
       </div>
     </div>
     <div style="display:flex; gap:8px; padding-top:14px; border-top:1px solid var(--border);">
-      ${doc.status!=='Complete' ? `<button class="btn btn-primary" onclick="closeOverlay('detailOverlay'); openSignModal('${doc.id}')">✍️ Sign Next</button>` : ''}
+      ${doc.driveLink ? `<a href="${doc.driveLink}" target="_blank" class="btn btn-primary" style="text-decoration:none;">☁️ Open in Drive</a>` : ''}
       <button class="btn btn-ghost" onclick="resend('${doc.id}')">📧 Resend Email</button>
       <button class="btn btn-ghost" onclick="closeOverlay('detailOverlay')">Close</button>
     </div>
@@ -610,111 +664,41 @@ async function resend(id) {
   const doc = docs.find(d => d.id === id);
   const next = doc?.signers.find(s => s.status === 'pending');
   if (!next) { toast('No pending signer','err'); return; }
-  await sendEmail(doc, next.index);
-  toast('📧 Reminder sent to ' + next.name);
-}
-
-// ── SIGN MODAL ──
-function openSignModal(docId, idxOverride) {
-  const doc = docs.find(d => d.id === docId);
-  if (!doc) return;
-  const idx = idxOverride !== undefined ? idxOverride : doc.currentSigner;
-  const s = doc.signers[idx];
-  _currentDoc = docId;
-  _currentSigIdx = idx;
-
-  document.getElementById('signModalTitle').textContent = '✍️ Sign — ' + doc.name;
-  document.getElementById('signInfo').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div style="font-size:12px; color:var(--muted);">Signing as</div>
-      <div style="text-align:right;">
-        <div style="font-weight:700; color:var(--blue); font-size:14px;">${s.name}</div>
-        <div style="font-size:11px; color:var(--muted);">Position ${idx+1} of ${doc.signers.length}</div>
-      </div>
-    </div>
-  `;
-  document.getElementById('signOverlay').classList.add('open');
-  clearPad();
-}
-
-function initPad() {
-  const c = document.getElementById('sigCanvas');
-  c.width = c.offsetWidth || 560;
-  c.height = 150;
-  sigPad = new SignaturePad(c, { backgroundColor:'rgb(255,255,255)', penColor:'#0B2545' });
-  sigPad.addEventListener('beginStroke', () => { document.getElementById('canvasHint').style.display='none'; });
-}
-
-function clearPad() { sigPad?.clear(); document.getElementById('canvasHint').style.display='block'; }
-
-function switchTab(panel, btn) {
-  document.querySelectorAll('.sig-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.sig-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-' + panel).classList.add('active');
-}
-
-function loadSigImg(inp) {
-  if (!inp.files[0]) return;
-  const r = new FileReader();
-  r.onload = e => { const img = document.getElementById('imgPreview'); img.src = e.target.result; img.style.display = 'block'; };
-  r.readAsDataURL(inp.files[0]);
-}
-
-async function applySign() {
-  const doc = docs.find(d => d.id === _currentDoc);
-  if (!doc) return;
-  const s = doc.signers[_currentSigIdx];
-
-  // Get signature data
-  let sigData = null;
-  const active = document.querySelector('.sig-panel.active').id;
-  if (active === 'panel-draw') {
-    if (!sigPad || sigPad.isEmpty()) { toast('Please draw your signature','err'); return; }
-    sigData = sigPad.toDataURL('image/png');
-  } else if (active === 'panel-type') {
-    const t = document.getElementById('typedSig').value.trim();
-    if (!t) { toast('Please type your name','err'); return; }
-    sigData = 'typed:' + t;
-  } else {
-    const img = document.getElementById('imgPreview');
-    if (!img.src || img.style.display==='none') { toast('Please upload a signature image','err'); return; }
-    sigData = img.src;
-  }
-
-  s.status = 'signed';
-  s.signedAt = new Date().toISOString();
-  s.sigData = sigData;
-
-  const next = _currentSigIdx + 1;
-  if (next < doc.signers.length) {
-    doc.signers[next].status = 'pending';
-    doc.currentSigner = next;
-    await sendEmail(doc, next);
-    toast('✅ Signed! ' + doc.signers[next].name + ' notified next.','ok');
-  } else {
-    doc.status = 'Complete';
-    doc.completedAt = new Date().toISOString();
-    toast('🎉 All signatures complete!','ok');
-  }
-
-  saveDocs();
-  closeOverlay('signOverlay');
-  renderDash();
+  const res = await fetch(WORKER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'notify',
+      fileId: doc.fileId,
+      signerEmail: next.email,
+      signerName: next.name,
+      driveLink: doc.driveLink,
+      docName: doc.name,
+      position: next.index + 1,
+      total: doc.signers.length,
+      sender: doc.originator?.name || cfg.sender || 'NFS Portal',
+      deadline: '7 days'
+    })
+  });
+  const data = await res.json();
+  if (data.success) toast('📧 Reminder sent to ' + next.name, 'ok');
+  else toast('Error: ' + JSON.stringify(data.error), 'err');
 }
 
 // ── CONFIG ──
 function saveCfg() {
   cfg = {
-    url:    document.getElementById('cfgUrl').value,
-    sender: document.getElementById('cfgSender').value,
+    url:            document.getElementById('cfgUrl').value,
+    sender:         document.getElementById('cfgSender').value,
+    originatorEmail: document.getElementById('cfgOriginatorEmail').value,
   };
   localStorage.setItem('nfs_cfg2', JSON.stringify(cfg));
 }
 
 function loadCfgUI() {
-  if(cfg.url)    document.getElementById('cfgUrl').value    = cfg.url;
-  if(cfg.sender) document.getElementById('cfgSender').value = cfg.sender;
+  if(cfg.url)             document.getElementById('cfgUrl').value             = cfg.url;
+  if(cfg.sender)          document.getElementById('cfgSender').value          = cfg.sender;
+  if(cfg.originatorEmail) document.getElementById('cfgOriginatorEmail').value = cfg.originatorEmail;
 }
 
 // ── TEAM ──
