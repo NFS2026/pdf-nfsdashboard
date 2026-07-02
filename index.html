@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NFS — PDF Signing Portal</title>
 <style>
-  :root {
-    --navy:#0B2545; --blue:#08499D; --red:#C0392B;
-    --light:#E8F0FB; --border:#d0daea; --gray:#f4f6fa;
-    --muted:#6b7f99; --text:#1a2a3a; --success:#1a7a4a;
-    --font:'Segoe UI',system-ui,sans-serif;
-  }
+  :root{--navy:#0B2545;--blue:#08499D;--red:#C0392B;--light:#E8F0FB;--border:#d0daea;--gray:#f4f6fa;--muted:#6b7f99;--text:#1a2a3a;--success:#1a7a4a;--font:'Segoe UI',system-ui,sans-serif;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:var(--font);background:var(--gray);color:var(--text);min-height:100vh;}
   header{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 28px;gap:14px;box-shadow:0 2px 10px rgba(0,0,0,.25);}
@@ -22,10 +17,12 @@
   header nav button:hover{background:rgba(255,255,255,.1);color:#fff;}
   header nav button.active{background:var(--blue);color:#fff;}
   main{max-width:760px;margin:0 auto;padding:32px 20px;}
-  .view{display:none;} .view.active{display:block;}
+  .view{display:none;}.view.active{display:block;}
   .card{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden;}
   .card-head{background:var(--navy);color:#fff;padding:12px 20px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
   .card-body{padding:22px;}
+  .form-row{display:flex;gap:12px;margin-bottom:0;}
+  .form-row>div{flex:1;}
   .signer-row{display:flex;align-items:center;gap:8px;background:var(--gray);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:8px;}
   .signer-num{width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
   .signer-row input{flex:1;border:1.5px solid var(--border);border-radius:5px;padding:7px 10px;font-size:13px;font-family:var(--font);color:var(--text);outline:none;transition:border-color .15s;}
@@ -34,25 +31,26 @@
   .rm-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:15px;padding:4px 6px;border-radius:4px;}
   .rm-btn:hover{background:#fdecea;}
   .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;text-decoration:none;}
-  .btn-primary{background:var(--blue);color:#fff;} .btn-primary:hover{background:#063d87;}
-  .btn-ghost{background:transparent;color:var(--blue);border:1.5px solid var(--blue);} .btn-ghost:hover{background:var(--light);}
+  .btn-primary{background:var(--blue);color:#fff;}.btn-primary:hover{background:#063d87;}
+  .btn-ghost{background:transparent;color:var(--blue);border:1.5px solid var(--blue);}.btn-ghost:hover{background:var(--light);}
   .btn-sm{padding:6px 12px;font-size:12px;}
   .btn:disabled{opacity:.6;cursor:not-allowed;}
   .row-actions{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
   label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:5px;margin-top:12px;}
+  label:first-child{margin-top:0;}
   input[type=text],input[type=email],input[type=url]{border:1.5px solid var(--border);border-radius:5px;padding:8px 11px;font-size:13px;font-family:var(--font);color:var(--text);width:100%;outline:none;transition:border-color .15s;}
   input[type=text]:focus,input[type=email]:focus,input[type=url]:focus{border-color:var(--blue);}
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
   .stat{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px 18px;border-left:4px solid var(--blue);}
-  .stat.orange{border-left-color:#b85c00;} .stat.green{border-left-color:var(--success);}
+  .stat.orange{border-left-color:#b85c00;}.stat.green{border-left-color:var(--success);}
   .stat-n{font-size:26px;font-weight:800;color:var(--navy);}
   .stat-l{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
   table{width:100%;border-collapse:collapse;font-size:13px;}
   th{background:var(--navy);color:#fff;padding:9px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;}
   td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
-  tr:last-child td{border-bottom:none;} tr:hover td{background:var(--gray);}
-  .badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
-  .b-progress{background:#cce5ff;color:#004085;} .b-complete{background:#d4edda;color:#155724;}
+  tr:last-child td{border-bottom:none;}tr:hover td{background:var(--gray);}
+  .badge-status{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .b-progress{background:#cce5ff;color:#004085;}.b-complete{background:#d4edda;color:#155724;}
   .prog-wrap{display:flex;align-items:center;gap:6px;}
   .prog-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
   .prog-fill{height:100%;background:var(--blue);border-radius:3px;}
@@ -74,13 +72,13 @@
   .tl-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:2px solid var(--border);background:#fff;color:var(--muted);}
   .tl-dot.signed{background:var(--success);border-color:var(--success);color:#fff;}
   .tl-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;}
-  .tl-name{font-size:13px;font-weight:600;} .tl-role{font-size:11px;color:var(--muted);}
+  .tl-name{font-size:13px;font-weight:600;}.tl-role{font-size:11px;color:var(--muted);}
   .tl-date{font-size:11px;color:var(--success);margin-top:2px;}
-  .cfg-note{background:#fffbf0;border:1.5px solid #f0d080;border-radius:7px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:#6b5a00;line-height:1.6;}
+  .cfg-note{background:#fffbf0;border:1.5px solid #f0d080;border-radius:7px;padding:14px 16px;margin-bottom:16px;font-size:12px;color:#6b5a00;line-height:1.6;}
   .toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:7px;font-size:13px;font-weight:500;z-index:2000;box-shadow:0 6px 20px rgba(0,0,0,.2);transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px;}
   .toast.show{transform:translateY(0);opacity:1;}
-  .toast.ok{background:var(--success);} .toast.err{background:var(--red);}
-  @media(max-width:600px){.stats{grid-template-columns:1fr 1fr;}.signer-row{flex-wrap:wrap;}.signer-row input.email{flex:1 0 100%;}}
+  .toast.ok{background:var(--success);}.toast.err{background:var(--red);}
+  @media(max-width:600px){.stats{grid-template-columns:1fr 1fr;}.signer-row{flex-wrap:wrap;}.signer-row input.email{flex:1 0 100%;}.form-row{flex-direction:column;gap:0;}}
 </style>
 </head>
 <body>
@@ -103,12 +101,24 @@
   <!-- SEND -->
   <div class="view active" id="view-send">
     <div class="card">
-      <div class="card-head">📄 Document</div>
+      <div class="card-head">📄 Document Details</div>
       <div class="card-body">
+        <div class="form-row">
+          <div>
+            <label>Your Name *</label>
+            <input type="text" id="senderName" placeholder="Full name">
+          </div>
+          <div>
+            <label>Your Email * (completion notification)</label>
+            <input type="email" id="senderEmail" placeholder="your.email@company.com">
+          </div>
+        </div>
         <label>Document Name *</label>
         <input type="text" id="docName" placeholder="e.g. ITP-E&I-001 Rev.2">
         <label>Document Link <span style="font-weight:400;text-transform:none;font-size:11px;">(optional — SharePoint, Teams, or any shared URL)</span></label>
         <input type="url" id="docLink" placeholder="https://...">
+        <label>Signing Deadline</label>
+        <input type="text" id="docDeadline" placeholder="e.g. 7 days">
       </div>
     </div>
 
@@ -124,7 +134,7 @@
           <button class="btn btn-ghost btn-sm" onclick="loadTeam()">📋 Load Team</button>
         </div>
         <div class="row-actions">
-          <span style="font-size:12px;color:var(--muted);">Each signer confirms directly from their email — no portal login needed</span>
+          <span style="font-size:12px;color:var(--muted);">Each signer confirms directly from their email</span>
           <button class="btn btn-primary" id="sendBtn" onclick="sendDoc()">📤 Send for Signing</button>
         </div>
       </div>
@@ -141,7 +151,7 @@
     <div class="card">
       <div class="card-head">
         📋 Documents
-        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="syncAll()">🔄 Sync</button>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="syncAll()">🔄 Sync All</button>
       </div>
       <div class="card-body" style="padding:0;" id="dashBody"></div>
     </div>
@@ -150,31 +160,15 @@
   <!-- SETUP -->
   <div class="view" id="view-setup">
     <div class="card">
-      <div class="card-head">⚙️ Configuration</div>
-      <div class="card-body">
-        <div class="cfg-note">
-          Emails sent via <strong>noreply@nfsdashboard.com</strong>. Signers confirm directly from email — no portal login needed.
-        </div>
-        <label>Your Name *</label>
-        <input type="text" id="cfgSender" placeholder="Full name">
-        <label>Your Email * (receives completion notification)</label>
-        <input type="email" id="cfgEmail" placeholder="your.email@company.com">
-        <label>Signing Deadline</label>
-        <input type="text" id="cfgDeadline" placeholder="e.g. 7 days">
-        <div style="margin-top:18px;">
-          <button class="btn btn-primary" onclick="saveCfg()">💾 Save Configuration</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
       <div class="card-head">👥 Saved Team</div>
       <div class="card-body">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Save your team — load instantly when sending.</p>
+        <div class="cfg-note">
+          Add your team members here — click <strong>Load Team</strong> on the Send tab to populate the signing order instantly.
+        </div>
         <div id="teamList"></div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
+        <div style="display:flex;gap:8px;margin-top:12px;">
           <button class="btn btn-ghost btn-sm" onclick="addTeamRow()">+ Add Person</button>
-          <button class="btn btn-ghost btn-sm" onclick="saveTeam();toast('Team saved','ok')">💾 Save Team</button>
+          <button class="btn btn-primary btn-sm" onclick="saveTeam();toast('✅ Team saved','ok')">💾 Save Team</button>
         </div>
       </div>
     </div>
@@ -198,16 +192,18 @@
 <script>
 const WORKER = 'https://nfs-pdf-worker.wmharake.workers.dev';
 
-let docs = JSON.parse(localStorage.getItem('nfs_docs4') || '[]');
-let cfg  = JSON.parse(localStorage.getItem('nfs_cfg4')  || '{}');
-let team = JSON.parse(localStorage.getItem('nfs_team4') || '[]');
+// localStorage: only doc IDs + team (no full state)
+let docIds = JSON.parse(localStorage.getItem('nfs_docids') || '[]');
+let team   = JSON.parse(localStorage.getItem('nfs_team4')  || '[]');
 let signers = [{name:'',email:''}];
 
-window.onload = () => {
+// In-memory doc cache (pulled from KV)
+let docsCache = {};
+
+window.onload = async () => {
   renderSigners();
-  renderDash();
-  loadCfgUI();
   renderTeamUI();
+  await loadDashboard();
 };
 
 function showView(name, btn) {
@@ -215,7 +211,7 @@ function showView(name, btn) {
   document.querySelectorAll('header nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
-  if (name === 'dashboard') renderDash();
+  if (name === 'dashboard') loadDashboard();
 }
 
 // ── SIGNERS ──
@@ -238,34 +234,40 @@ function loadTeam() {
 
 // ── SEND ──
 async function sendDoc() {
-  const docName = document.getElementById('docName').value.trim();
-  const docLink = document.getElementById('docLink').value.trim();
-  if (!docName) { toast('Enter a document name','err'); return; }
-  if (!cfg.sender || !cfg.email) { toast('Fill in your name and email in Setup first','err'); return; }
+  const senderName  = document.getElementById('senderName').value.trim();
+  const senderEmail = document.getElementById('senderEmail').value.trim();
+  const docName     = document.getElementById('docName').value.trim();
+  const docLink     = document.getElementById('docLink').value.trim();
+  const deadline    = document.getElementById('docDeadline').value.trim() || '7 days';
+
+  if (!senderName)  { toast('Enter your name','err'); return; }
+  if (!senderEmail) { toast('Enter your email','err'); return; }
+  if (!docName)     { toast('Enter a document name','err'); return; }
+
   const valid = signers.filter(s => s.name && s.email);
   if (!valid.length) { toast('Add at least one signer','err'); return; }
 
   const btn = document.getElementById('sendBtn');
-  if (btn.getAttribute('data-sending') === 'true') return;
-  btn.setAttribute('data-sending', 'true');
+  if (btn.disabled) return;
   btn.disabled = true; btn.textContent = '⏳ Sending...';
 
   try {
     const id = 'DOC-' + Date.now();
     const doc = {
-      id, name: docName,
+      id,
+      name: docName,
       docLink: docLink || null,
-      deadline: cfg.deadline || '7 days',
+      deadline,
       signers: valid.map((s,i) => ({
         ...s, index: i,
         status: i===0 ? 'pending' : 'waiting',
-        token: btoa(id+':'+i+':'+s.email).replace(/=/g,''),
+        token: btoa(id+':'+i+':'+s.email+':'+Date.now()).replace(/[^a-zA-Z0-9]/g,''),
         signedAt: null
       })),
       status: 'In Progress',
       createdAt: new Date().toISOString(),
       currentSigner: 0,
-      originator: { name: cfg.sender, email: cfg.email }
+      originator: { name: senderName, email: senderEmail }
     };
 
     const res  = await fetch(WORKER, {
@@ -274,61 +276,86 @@ async function sendDoc() {
       body: JSON.stringify({ action: 'create', doc })
     });
     const data = await res.json();
-    if (!data.success) throw new Error(data.error || 'Failed');
+    if (!data.success) throw new Error(data.error || 'Failed to send');
 
-    docs.unshift(doc);
-    saveDocs();
+    // Store only the ID locally
+    docIds.unshift(id);
+    docsCache[id] = doc;
+    localStorage.setItem('nfs_docids', JSON.stringify(docIds));
+
     toast('✅ ' + doc.signers[0].name + ' notified', 'ok');
-    document.getElementById('docName').value = '';
-    document.getElementById('docLink').value = '';
+
+    // Reset form (keep sender name/email for convenience)
+    document.getElementById('docName').value  = '';
+    document.getElementById('docLink').value  = '';
     signers = [{name:'',email:''}];
     renderSigners();
     setTimeout(() => showView('dashboard', document.querySelectorAll('header nav button')[1]), 1200);
+
   } catch(e) {
     toast('Error: ' + e.message, 'err');
   } finally {
-    btn.disabled = false;
-    btn.textContent = '📤 Send for Signing';
-    btn.setAttribute('data-sending', 'false');
+    btn.disabled = false; btn.textContent = '📤 Send for Signing';
   }
 }
 
-// ── SYNC from KV ──
-async function syncDoc(docId) {
-  const res  = await fetch(WORKER, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'status', docId })
-  });
-  const data = await res.json();
-  if (data.success) {
-    const idx = docs.findIndex(d => d.id === docId);
-    if (idx >= 0) { docs[idx] = data.doc; saveDocs(); }
+// ── DASHBOARD — pulls from KV ──
+async function loadDashboard() {
+  const body = document.getElementById('dashBody');
+  if (!docIds.length) {
+    renderDashStats([]);
+    body.innerHTML = '<div class="empty"><div class="ei">📭</div><h3>No documents yet</h3><p>Send your first document from the Send tab.</p></div>';
+    return;
   }
+
+  body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">Loading...</div>';
+
+  // Fetch all docs from KV
+  const docs = [];
+  for (const id of docIds) {
+    if (docsCache[id] && docsCache[id]._fresh) {
+      docs.push(docsCache[id]);
+    } else {
+      const res  = await fetch(WORKER, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'status', docId: id })
+      });
+      const data = await res.json();
+      if (data.success) {
+        data.doc._fresh = true;
+        docsCache[id] = data.doc;
+        docs.push(data.doc);
+      }
+    }
+  }
+
+  renderDashStats(docs);
+  renderDashTable(docs);
 }
 
 async function syncAll() {
+  // Clear cache to force fresh fetch
+  Object.keys(docsCache).forEach(k => delete docsCache[k]._fresh);
   toast('Syncing...');
-  for (const doc of docs.filter(d => d.status !== 'Complete')) {
-    await syncDoc(doc.id);
-  }
-  renderDash();
+  await loadDashboard();
   toast('✅ Synced', 'ok');
 }
 
-// ── DASHBOARD ──
-function renderDash() {
+function renderDashStats(docs) {
   document.getElementById('sTotal').textContent    = docs.length;
   document.getElementById('sPending').textContent  = docs.filter(d=>d.status==='In Progress').length;
   document.getElementById('sComplete').textContent = docs.filter(d=>d.status==='Complete').length;
+}
 
+function renderDashTable(docs) {
   const body = document.getElementById('dashBody');
   if (!docs.length) {
     body.innerHTML = '<div class="empty"><div class="ei">📭</div><h3>No documents yet</h3><p>Send your first document from the Send tab.</p></div>';
     return;
   }
   body.innerHTML = `<table>
-    <thead><tr><th>Document</th><th>Progress</th><th>Status</th><th>Date</th><th></th></tr></thead>
+    <thead><tr><th>Document</th><th>Originator</th><th>Progress</th><th>Status</th><th></th></tr></thead>
     <tbody>${docs.map(d => {
       const signed = d.signers.filter(s=>s.status==='signed').length;
       const total  = d.signers.length;
@@ -339,40 +366,63 @@ function renderDash() {
           <div style="font-weight:600;font-size:13px;">${d.name}</div>
           ${next?`<div style="font-size:11px;color:var(--blue);margin-top:2px;">⏳ ${next.name}</div>`:''}
         </td>
+        <td style="font-size:12px;color:var(--muted);">${d.originator?.name||''}</td>
         <td>
           <div class="prog-wrap">
             <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
             <span class="prog-txt">${signed}/${total}</span>
           </div>
         </td>
-        <td><span class="badge ${d.status==='Complete'?'b-complete':'b-progress'}">${d.status==='Complete'?'✅ Complete':'🔄 In Progress'}</span></td>
-        <td style="font-size:11px;color:var(--muted);">${new Date(d.createdAt).toLocaleDateString()}</td>
+        <td><span class="badge-status ${d.status==='Complete'?'b-complete':'b-progress'}">${d.status==='Complete'?'✅ Complete':'🔄 In Progress'}</span></td>
         <td>
           <div style="display:flex;gap:6px;flex-wrap:wrap;">
             <button class="btn btn-ghost btn-sm" onclick="showDetail('${d.id}')">View</button>
             ${d.docLink?`<a href="${d.docLink}" target="_blank" class="btn btn-ghost btn-sm">📄 Doc</a>`:''}
-            <button class="btn btn-ghost btn-sm" onclick="syncDoc('${d.id}').then(renderDash)">🔄</button>
-            <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="delDoc('${d.id}')">🗑</button>
+            <button class="btn btn-ghost btn-sm" onclick="refreshDoc('${d.id}')">🔄</button>
+            <button class="btn btn-sm" style="background:var(--red);color:#fff;" onclick="removeDoc('${d.id}')">🗑</button>
           </div>
         </td>
       </tr>`;
     }).join('')}</tbody></table>`;
 }
 
-function delDoc(id) {
-  if (!confirm('Delete this document record?')) return;
-  docs = docs.filter(d => d.id !== id);
-  saveDocs(); renderDash(); toast('Deleted');
+async function refreshDoc(id) {
+  delete docsCache[id];
+  const res  = await fetch(WORKER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'status', docId: id })
+  });
+  const data = await res.json();
+  if (data.success) {
+    data.doc._fresh = true;
+    docsCache[id] = data.doc;
+    const docs = docIds.map(i => docsCache[i]).filter(Boolean);
+    renderDashStats(docs);
+    renderDashTable(docs);
+    toast('✅ Refreshed', 'ok');
+  }
+}
+
+function removeDoc(id) {
+  if (!confirm('Remove this document from your list?')) return;
+  docIds = docIds.filter(i => i !== id);
+  delete docsCache[id];
+  localStorage.setItem('nfs_docids', JSON.stringify(docIds));
+  const docs = docIds.map(i => docsCache[i]).filter(Boolean);
+  renderDashStats(docs);
+  renderDashTable(docs);
+  toast('Removed');
 }
 
 // ── DETAIL ──
 function showDetail(id) {
-  const doc = docs.find(d => d.id === id);
+  const doc = docsCache[id];
   if (!doc) return;
   document.getElementById('detailTitle').textContent = doc.name;
   document.getElementById('detailBody').innerHTML = `
-    <div style="margin-bottom:16px;">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Signing Chain</div>
+    <div style="margin-bottom:4px;">
+      <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;">Signing Chain</div>
       <div class="timeline">
         ${doc.signers.map((s,i) => `
           <div class="tl-item">
@@ -381,15 +431,15 @@ function showDetail(id) {
               <div class="tl-name">${s.name}</div>
               <div class="tl-role">${s.email}</div>
               ${s.signedAt?`<div class="tl-date">Signed ${new Date(s.signedAt).toLocaleString()}</div>`
-                :`<div style="font-size:11px;color:var(--muted);margin-top:2px;">${s.status==='pending'?'⏳ Awaiting signature':'⌛ Waiting'}</div>`}
+                :`<div style="font-size:11px;color:var(--muted);margin-top:2px;">${s.status==='pending'?'⏳ Awaiting':'⌛ Waiting'}</div>`}
             </div>
           </div>`).join('')}
       </div>
     </div>
-    <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;">
+    <div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;margin-top:14px;">
       ${doc.docLink?`<a href="${doc.docLink}" target="_blank" class="btn btn-primary">📄 Open Document</a>`:''}
-      <button class="btn btn-ghost" onclick="resendEmail('${doc.id}')">📧 Resend Email</button>
-      <button class="btn btn-ghost" onclick="syncDoc('${doc.id}').then(()=>{renderDash();closeOverlay('detailOverlay');toast('Synced','ok')})">🔄 Sync</button>
+      <button class="btn btn-ghost" onclick="resendEmail('${doc.id}')">📧 Resend</button>
+      <button class="btn btn-ghost" onclick="refreshDoc('${doc.id}').then(()=>closeOverlay('detailOverlay'))">🔄 Sync</button>
       <button class="btn btn-ghost" onclick="closeOverlay('detailOverlay')">Close</button>
     </div>`;
   document.getElementById('detailOverlay').classList.add('open');
@@ -402,40 +452,23 @@ async function resendEmail(id) {
     body: JSON.stringify({ action: 'resend', docId: id })
   });
   const data = await res.json();
-  if (data.success) toast('📧 Reminder sent', 'ok');
-  else toast('Error: ' + data.error, 'err');
-}
-
-// ── CONFIG ──
-function saveCfg() {
-  cfg = {
-    sender:   document.getElementById('cfgSender').value.trim(),
-    email:    document.getElementById('cfgEmail').value.trim(),
-    deadline: document.getElementById('cfgDeadline').value.trim() || '7 days',
-  };
-  localStorage.setItem('nfs_cfg4', JSON.stringify(cfg));
-  toast('✅ Configuration saved', 'ok');
-}
-function loadCfgUI() {
-  if (cfg.sender)   document.getElementById('cfgSender').value   = cfg.sender;
-  if (cfg.email)    document.getElementById('cfgEmail').value    = cfg.email;
-  if (cfg.deadline) document.getElementById('cfgDeadline').value = cfg.deadline;
+  toast(data.success ? '📧 Reminder sent' : 'Error: ' + data.error, data.success ? 'ok' : 'err');
 }
 
 // ── TEAM ──
 function addTeamRow() { team.push({name:'',email:''}); renderTeamUI(); }
 function renderTeamUI() {
-  document.getElementById('teamList').innerHTML = team.map((m,i) => `
+  document.getElementById('teamList').innerHTML = team.length ? team.map((m,i) => `
     <div style="display:flex;gap:8px;margin-bottom:7px;align-items:center;">
       <input type="text" value="${m.name}" placeholder="Full name" style="flex:1;" oninput="team[${i}].name=this.value">
       <input type="email" value="${m.email}" placeholder="email@company.com" style="flex:1.5;" oninput="team[${i}].email=this.value">
       <button class="rm-btn" onclick="team.splice(${i},1);renderTeamUI()">✕</button>
-    </div>`).join('');
+    </div>`).join('')
+    : '<p style="font-size:12px;color:var(--muted);">No team members yet.</p>';
 }
 function saveTeam() { localStorage.setItem('nfs_team4', JSON.stringify(team)); }
 
 // ── UTILS ──
-function saveDocs() { localStorage.setItem('nfs_docs4', JSON.stringify(docs)); }
 function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
 function toast(msg, type='') {
   const el = document.getElementById('toastEl');
